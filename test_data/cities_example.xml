@@ -1,0 +1,48 @@
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+ <teiHeader>
+<!-- ... -->
+ </teiHeader>
+ <standOff>
+  <listPlace>
+   <place xml:id="LATL">
+    <placeName>Atlanta</placeName>
+    <location>
+     <region key="US-GA">Georgia</region>
+     <country key="USA">United States of America</country>
+     <geo>33.755 -84.39</geo>
+    </location>
+    <population when="1963"
+     type="interpolatedCensus" quantity="489359"
+     source="https://www.biggestuscities.com/city/atlanta-georgia"/>
+   </place>
+   <place xml:id="LBHM">
+    <placeName>Birmingham</placeName>
+    <location>
+     <region key="US-AL">Alabama</region>
+     <country key="USA">United States of America</country>
+     <geo>33.653333 -86.808889</geo>
+    </location>
+    <population when="1963"
+     type="interpolatedCensus" quantity="332891"
+     source="https://www.biggestuscities.com/city/birmingham-alabama"/>
+   </place>
+  </listPlace>
+ </standOff>
+ <text>
+  <body>
+<!-- ... -->
+   <p>Moreover, I am <choice>
+     <sic>congnizant</sic>
+     <corr>cognizant</corr>
+    </choice> of the interrelatedness of all communities and
+   <lb/>states. I cannot sit idly by in <placeName ref="#LATL">Atlanta</placeName> and not be concerned about what happens
+   <lb/>in <placeName ref="#LBHM">Birmingham</placeName>. <seg xml:id="FQ17">Injustice anywhere is a threat to justice everywhere.</seg> We
+   <lb/>are caught in an inescapable network of mutuality, tied in a single garment
+   <lb/>of destiny. Whatever affects one directly affects all indirectly. Never
+   <lb/>again can we afford to live with the narrow, provincial <soCalled rendition="#Rqms">outside agitator</soCalled>
+    <lb/>idea. Anyone who lives inside the United States can never be considered
+   <lb/>an outsider anywhere in this country.</p>
+<!-- ... -->
+  </body>
+ </text>
+</TEI>

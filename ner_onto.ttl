@@ -1,0 +1,133 @@
+@prefix xml:        <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd:        <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:       <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:        <http://www.w3.org/2002/07/owl#> .
+@prefix schema:     <https://schema.org/> .
+@prefix myOnto:     <http://www.NLPGraph.com/ontology/> .
+
+# The NLP Graph Ontology ontology
+
+<http://www.NLPGraph.com/ontology/>
+    rdf:type owl:Ontology ;
+    rdfs:label "The NLP Pipeline ontology" .
+
+
+myOnto:Document   rdf:type owl:Class ;
+          rdfs:label "Text Document"@en ;
+          rdfs:comment "Input Document for pipeline"@en .
+
+myOnto:hasText rdf:type owl:ObjectProperty ;
+         rdfs:domain myOnto:Document ;
+         rdfs:range  myOnto:Text ;
+         rdfs:label "has Text"@en .
+
+myOnto:hasLanguage rdf:type owl:DatatypeProperty ;
+         rdfs:domain myOnto:Document ;
+         rdfs:range  xsd:language ;
+         rdfs:label "Language"@en .
+
+myOnto:NamedEntity rdf:type owl:Class ;
+                   rdfs:label "Named Entity"@en ;
+                   rdfs:comment "A Named Entity"@en .
+
+myOnto:Location rdf:type owl:Class ;
+          rdfs:subClassOf schema:Place , myOnto:NamedEntity;
+          rdfs:label "Location"@en ;
+          rdfs:comment "A Location"@en .
+
+myOnto:geoName rdf:type owl:DatatypeProperty ;
+         rdfs:subPropertyOf schema:globalLocationNumber ;
+         rdfs:label "Geoname"@de ,
+                    "Geoname"@en ;
+
+         rdfs:domain myOnto:Location ;
+
+         rdfs:range xsd:string .
+
+myOnto:name  rdf:type owl:DatatypeProperty ;
+       rdfs:subPropertyOf schema:name ;
+       rdfs:label "Name"@de ,
+                  "Name"@en ;
+
+       rdfs:range xsd:string .
+
+myOnto:Person rdf:type owl:Class ;
+        rdfs:subClassOf schema:Person , myOnto:NamedEntity ;
+        rdfs:label "Person"@en ;
+        rdfs:comment "A resource representing a person."@en .
+
+myOnto:gnd    rdf:type  owl:DatatypeProperty ;
+        rdfs:label "Gemeinsame Normdatei (GND)"@de,
+                   "Integrated Authority File"@en ;
+        rdfs:comment "Repräsentiert eine GND-Nummer."@de,
+                     "Represents an IAF identifier."@en ;
+        rdfs:range   xsd:string ;
+        rdfs:domain myOnto:Person .
+
+
+myOnto:bornIn rdf:type owl:ObjectProperty ;
+    rdfs:subPropertyOf  schema:birthPlace ;
+    rdfs:label          "Born in"@en ;
+    rdfs:comment        "Birth Place"@en ;
+    rdfs:range          myOnto:Location ;
+    rdfs:domain         myOnto:Person .
+
+
+myOnto:livedIn rdf:type   owl:ObjectProperty ;
+         rdfs:label   "Lived in"@en ;
+         rdfs:comment "Place of residence."@en ;
+         rdfs:domain  myOnto:Person ;
+         rdfs:range   myOnto:Location .
+
+myOnto:traveledTo  rdf:type owl:ObjectProperty ;
+             rdfs:label  "Traveled to"@en ;
+             rdfs:comment "Trip destination."@en ;
+             rdfs:domain  myOnto:Person ;
+             rdfs:range   myOnto:Location .
+
+myOnto:Text a owl:Class ;
+
+        rdfs:label "Text"@en ;
+
+        rdfs:comment "A resource representing a text content."@en .
+
+myOnto:textContent rdf:type owl:DatatypeProperty ;
+             rdfs:label  "Reisezeil"@de,
+                         "Traveled to"@en ;
+             rdfs:comment "Trip destination."@en ;
+             rdfs:domain  myOnto:Text ;
+             rdfs:range   xsd:string .
+
+myOnto:hasReferenceTo rdf:type owl:ObjectProperty ;
+             rdfs:label  "has reference to"@en ;
+             rdfs:comment "text reference to an entity."@en ;
+             rdfs:domain  myOnto:Text .
+
+myOnto:hasStandoffMarkUp rdf:type owl:ObjectProperty ;
+             rdfs:label  "has standoff markup"@en ;
+             rdfs:comment "text markup as standoff."@en ;
+             rdfs:domain  myOnto:Text .
+
+myOnto:StandoffLink a owl:Class ;
+
+        rdfs:label "Standoff Link"@en ;
+
+        rdfs:comment "A resource representing a standoff link markup."@en .
+
+myOnto:startChar rdf:type owl:DatatypeProperty ;
+             rdfs:label  "start character"@en ;
+             rdfs:comment "start character of markup."@en ;
+             rdfs:domain  myOnto:StandoffLink ;
+             rdfs:range   xsd:integer .
+
+myOnto:endChar rdf:type owl:DatatypeProperty ;
+             rdfs:label  "end character"@en ;
+             rdfs:comment "end character of markup."@en ;
+             rdfs:domain  myOnto:StandoffLink ;
+             rdfs:range   xsd:integer .
+
+myOnto:linkTo rdf:type owl:ObjectProperty ;
+             rdfs:label  "link to"@en ;
+             rdfs:comment "standoff link to a resource."@en ;
+             rdfs:domain  myOnto:StandoffLink .
