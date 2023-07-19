@@ -105,7 +105,7 @@ class SpacyPosParser:
             file.write(dep_svg)
 
 
-def dep_parsing_pipe(text, project_name, lang):
+def parse_dependencies(text, project_name, lang):
     pos_parser = SpacyPosParser(text, lang)
     excel_output_file = pos_parser.get_pos_tags(project_name)
     return excel_output_file

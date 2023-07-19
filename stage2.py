@@ -1,5 +1,5 @@
 from parse_ontology import *
-from POS_pipe import dep_parsing_pipe
+from dep_parsing_pipe import parse_dependencies
 from update_graph_stage2 import add_entity_relations
 import os
 import json
@@ -20,7 +20,7 @@ def stage2(onto_file, text, doc_name, lang, project_name, entities_json):
     relations = parse_ontology(onto_file)
 
     # dependency parsing pipe
-    excel_file_path = dep_parsing_pipe(text=text, project_name=project_name, lang=lang)
+    excel_file_path = parse_dependencies(text=text, project_name=project_name, lang=lang)
 
     # Pronoun resolution pipe
     # TODO: separate this pipe
