@@ -41,7 +41,7 @@ def pipeline(text_path, text_lang, ontology_path, project_name):
 
 if __name__ == '__main__':
     working_dir = os.getcwd()
-    pipeline(text_path=os.path.join(working_dir, 'test_data', 'dh2023', 'en_swiss.txt'),
+    pipeline(text_path=os.path.join(working_dir, 'inputs/test_data', 'dh2023', 'en_swiss.txt'),
              text_lang='en',
-             ontology_path=os.path.join(working_dir, 'ner_onto.ttl'),
+             ontology_path=os.path.join(working_dir, 'inputs/ner_onto.ttl'),
              project_name='test')

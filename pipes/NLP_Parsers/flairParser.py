@@ -1,8 +1,8 @@
-from NER_pipe import FlairNERParser
+from pipes.NER_pipe import FlairNERParser
 import os
 from flair.models import SequenceTagger
 from flair.data import Sentence
-from wiki_IR_pipe import add_wiki_info_person, add_wiki_info_location
+from pipes.wiki_IR_pipe import add_wiki_info_person, add_wiki_info_location
 
 # more models on hugging face https://huggingface.co/models?library=flair&sort=downloads
 
@@ -52,7 +52,7 @@ def flair_pos_test(text, lang):
 
 
 if __name__ == '__main__':
-    test_data_path = "test_data/dh2023"
+    test_data_path = "../../inputs/test_data/dh2023"
 
     test_file = "fa_swiss.txt"
     test_data = os.path.join(test_data_path, test_file)

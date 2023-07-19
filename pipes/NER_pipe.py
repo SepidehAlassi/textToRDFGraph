@@ -1,4 +1,4 @@
-from spacyParser import SpacyParser
+from pipes.NLP_Parsers.spacyParser import SpacyParser
 from spacy import displacy
 from flair.models import SequenceTagger
 from flair.data import Sentence

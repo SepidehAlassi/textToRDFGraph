@@ -1,5 +1,5 @@
 from parse_ontology import *
-from dep_parsing_pipe import parse_dependencies
+from pipes.dep_parsing_pipe import parse_dependencies
 from update_graph_stage2 import add_entity_relations
 import os
 import json
@@ -35,12 +35,12 @@ def stage2(onto_file, text, doc_name, lang, project_name, entities_json):
 
 
 if __name__ == '__main__':
-    folder_path = os.path.join('test_data', 'dh2023')
+    folder_path = os.path.join('inputs/test_data', 'dh2023')
     document_name = 'en_swiss'
     file_path = os.path.join(folder_path, document_name + '.txt')
     with open(file_path, 'r') as file:
         text = file.read()
-    stage2(onto_file=os.path.join(os.getcwd(), 'ner_onto.ttl'),
+    stage2(onto_file=os.path.join(os.getcwd(), 'inputs/ner_onto.ttl'),
            text=text,
            doc_name=document_name,
            lang='en',

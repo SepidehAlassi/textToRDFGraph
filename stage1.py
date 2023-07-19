@@ -1,10 +1,10 @@
 import os
 import json
 
-from create_resources_pipe import create_resources_pipe
+from pipes.create_resources_pipe import create_resources_pipe
 from Entitiy import Entity
-from NER_pipe import ner_pipe
-from wiki_IR_pipe import wiki_IR_pipe
+from pipes.NER_pipe import ner_pipe
+from pipes.wiki_IR_pipe import wiki_IR_pipe
 
 
 def stage1(parser, existing_entities, text, doc_name, project_name, lang="en"):
@@ -23,7 +23,7 @@ def stage1(parser, existing_entities, text, doc_name, project_name, lang="en"):
 
 
 if __name__ == '__main__':
-    folder_path = os.path.join('test_data', 'dh2023')
+    folder_path = os.path.join('inputs/test_data', 'dh2023')
     document_name = 'fa_swiss'
     file_path = os.path.join(folder_path, document_name + '.txt')
     with open(file_path, 'r') as file:

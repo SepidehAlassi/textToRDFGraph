@@ -27,4 +27,4 @@ def parse_ontology(file):
     return extracted_relations
 
 if __name__ == '__main__':
-    print(parse_ontology('../textToRDFGraph/ner_onto.ttl'))
+    print(parse_ontology('inputs/ner_onto.ttl'))

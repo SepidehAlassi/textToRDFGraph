@@ -1,6 +1,6 @@
 import pandas as pd
 from spacy import displacy
-from spacyParser import SpacyParser
+from pipes.NLP_Parsers.spacyParser import SpacyParser
 import os
 
 
