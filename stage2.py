@@ -39,5 +39,5 @@ if __name__ == '__main__':
            text=text,
            doc_name=document_name,
            lang='en',
-           project_name='test',
-           entities_json=os.path.join('test', 'test_entities.json'))
+           project_name='tests',
+           entities_json=os.path.join('tests', 'test_entities.json'))
