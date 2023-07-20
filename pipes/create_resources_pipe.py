@@ -105,39 +105,23 @@ def add_references(entities_json, text_res_iri, graph):
     return graph
 
 
-def create_document_resource(entities_json, project_name, text, document_name):
-    graph_file = os.path.join(os.getcwd(), project_name, project_name + '_graph.ttl')
+def create_document_resource(entities_json, inputs):
+    graph_file = os.path.join(os.getcwd(), inputs.project_name, inputs.project_name + '_graph.ttl')
     document_graph = Graph()
     document_graph.parse(graph_file, format='ttl')
-    doc_iri = URIRef(DEFAULT + document_name)
-    text_iri = generate_document_resource(doc_iri, document_name, text, graph=document_graph)
+    doc_iri = URIRef(DEFAULT + inputs.doc_name)
+    text_iri = generate_document_resource(doc_iri, inputs.doc_name, inputs.text, graph=document_graph)
     document_graph = add_references(entities_json, text_iri, graph=document_graph)
 
     document_graph.serialize(destination=graph_file, format='turtle')
 
 
-def update_graph(links_to_add, document_label, project_name):
-    graph = Graph()
-    graph_file_path = os.path.join(project_name, project_name + '_graph.ttl')
-    graph.parse(graph_file_path, format='ttl')
-    star_statements = ""
-    for link in links_to_add:
-        graph.add((URIRef(link['subj_iri']), URIRef(link['prop_iri']), URIRef(link['obj_iri'])))
-        star_statements += "<< <" + link['subj_iri'] + "> <" + link['prop_iri'] + "> <" + link[
-            'obj_iri'] + "> >> myOnto:mentionedIn <" + DEFAULT + document_label + "> .\n"
-    graph.serialize(destination=graph_file_path, format='turtle')
-
-    with open(graph_file_path, 'a') as graph_file:
-        graph_file.write(star_statements)
-
-
-def create_resources_pipe(entities_json, project_name, text, doc_name):
+def create_resources_pipe(entities_json, inputs):
     create_entity_resources(entities_path=entities_json,
-                            project_name=project_name)
+                            project_name=inputs.project_name)
     create_document_resource(entities_json=entities_json,
-                             project_name=project_name,
-                             text=text,
-                             document_name=doc_name)
+                             inputs=inputs)
+
 
 if __name__ == '__main__':
     pass

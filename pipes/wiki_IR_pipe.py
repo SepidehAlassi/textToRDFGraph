@@ -38,12 +38,14 @@ def get_wiki_record_location(name, lang):
     longitude = ""
     latitude = ""
     if len(results) == 0:
-        # warnings.warn("No records found for location " + name + " in language " + lang + ".")
+        msg = "No records found for location " + name + " in language " + lang + "."
+        print(msg)
         pass
     else:
         record = results[0]
         if len(results) > 1:
-            warnings.warn("Multiple records found for location " + name + "in language" + lang + ". Top one is chosen.")
+            msg = "Multiple records found for location " + name + " in language " + lang + ". Top one is chosen."
+            print(msg)
         wiki_id = record['wikiItem']['value']
         geoname_id = record['geonameID']['value']
         coordinate = record['coordinate']['value']
@@ -74,12 +76,14 @@ WHERE {
     family_name = ""
     gender =""
     if len(results) == 0:
-        warnings.warn("No records found for person " + name + " in language " + lang + ".")
+        msg = "No records found for person " + name + " in language " + lang + "."
+        print(msg)
         pass
     else:
         record = results[0]
         if len(results) > 1:
-            warnings.warn("Multiple records found for person " + name + "in language" + lang + ". Top one is chosen.")
+            msg = "Multiple records found for person " + name + " in language " + lang + ". Top one is chosen."
+            print(msg)
         wiki_id = record['person']['value']
         gnd = record['gnd']['value']
         given_name = record['givenNameLabel']['value']

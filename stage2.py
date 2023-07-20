@@ -1,6 +1,6 @@
-from parse_ontology import *
 from pipes.dep_parsing_pipe import parse_dependencies
-from update_graph_stage2 import add_entity_relations
+from pipes.postprocess_pipe import add_entity_relations
+from rdflib import Graph
 import os
 import json
 from Entitiy import from_json
@@ -13,14 +13,11 @@ def read_entities(entities_json):
     return entities
 
 
-def stage2(onto_file, text, doc_name, lang, project_name, entities_json):
+def stage2(inputs, entities_json):
     entities = read_entities(entities_json)
 
-    # parse ontology
-    relations = parse_ontology(onto_file)
-
     # dependency parsing pipe
-    excel_file_path = parse_dependencies(text=text, project_name=project_name, lang=lang)
+    excel_file_path = parse_dependencies(text=inputs.text, project_name=inputs.project_name, lang=inputs.lang)
 
     # Pronoun resolution pipe
     # TODO: separate this pipe
@@ -28,10 +25,8 @@ def stage2(onto_file, text, doc_name, lang, project_name, entities_json):
     # update graph
     add_entity_relations(excel_file=excel_file_path,
                          entities_dict=entities,
-                         relations=relations,
-                         project_name=project_name,
-                         document_label=doc_name)
-    print('stage 2')
+                         inputs=inputs)
+    print('End of stage 2!')
 
 
 if __name__ == '__main__':
