@@ -27,12 +27,8 @@ myOnto:hasLanguage rdf:type owl:DatatypeProperty ;
          rdfs:range  xsd:language ;
          rdfs:label "Language"@en .
 
-myOnto:NamedEntity rdf:type owl:Class ;
-                   rdfs:label "Named Entity"@en ;
-                   rdfs:comment "A Named Entity"@en .
-
 myOnto:Location rdf:type owl:Class ;
-          rdfs:subClassOf schema:Place , myOnto:NamedEntity;
+          rdfs:subClassOf schema:Place ;
           rdfs:label "Location"@en ;
           rdfs:comment "A Location"@en .
 
@@ -53,7 +49,7 @@ myOnto:name  rdf:type owl:DatatypeProperty ;
        rdfs:range xsd:string .
 
 myOnto:Person rdf:type owl:Class ;
-        rdfs:subClassOf schema:Person , myOnto:NamedEntity ;
+        rdfs:subClassOf schema:Person ;
         rdfs:label "Person"@en ;
         rdfs:comment "A resource representing a person."@en .
 

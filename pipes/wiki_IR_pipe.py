@@ -18,11 +18,11 @@ def get_position(coordinate):
 
 def make_loc_query(name, lang):
     sparql_statement = """
-    select ?wikiItem ?geonameID ?coordinate
+    select ?place ?geonameID ?coordinate
     where {""" + \
-                       '?wikiItem rdfs:label "' + name.title() + '"@' + lang + "; " + \
-                       """wdt:P1566 ?geonameID;\n
-    wdt:P625 ?coordinate
+                       '?place wdt:P625 ?coordinate .\n' \
+                       '?place rdfs:label "' + name.title() + '"@' + lang + "; \n" + \
+                       """wdt:P1566 ?geonameID .
     }
     """
 
@@ -46,7 +46,7 @@ def get_wiki_record_location(name, lang):
         if len(results) > 1:
             msg = "Multiple records found for location " + name + " in language " + lang + ". Top one is chosen."
             print(msg)
-        wiki_id = record['wikiItem']['value']
+        wiki_id = record['place']['value']
         geoname_id = record['geonameID']['value']
         coordinate = record['coordinate']['value']
         longitude, latitude = get_position(coordinate)
@@ -74,7 +74,7 @@ WHERE {
     gnd = ""
     given_name = ""
     family_name = ""
-    gender =""
+    gender = ""
     if len(results) == 0:
         msg = "No records found for person " + name + " in language " + lang + "."
         print(msg)
@@ -129,7 +129,8 @@ def add_wiki_info_person(found_persons, document):
             pers.gender = same_item.gender
             counter -= 1
         else:
-            pers.wiki_id, pers.gnd, pers.given_name, pers.family_name, pers.gender = get_wiki_record_person(pers.text, pers.language)
+            pers.wiki_id, pers.gnd, pers.given_name, pers.family_name, pers.gender = get_wiki_record_person(pers.text,
+                                                                                                            pers.language)
         if counter == 8:
             time.sleep(90)
             counter = 0

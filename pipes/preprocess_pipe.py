@@ -13,7 +13,7 @@ def parse_ontology(file):
 class Input:
     def __init__(self, text_path, onto_path, project_name):
         self.text, self.doc_name = read_text(text_path)
-        self.lang = self.detect_lang(self.text)
+        self.lang = detect_lang(self.text)
         self.onto_graph = parse_ontology(onto_path)
         self.project_name = project_name
 
