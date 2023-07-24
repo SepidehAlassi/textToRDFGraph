@@ -2,6 +2,7 @@ import json
 import os
 from rdflib import Graph, Literal, URIRef, BNode
 from rdflib.namespace import XSD, Namespace, SDO, RDF, RDFS, OWL
+from pipes.preprocess_pipe import Input
 
 # Add namespace
 DEFAULT = Namespace("http://www.NLPGraph.com/resource/")
@@ -66,7 +67,7 @@ def create_entity_resources(entities_path, project_name):
         entities_dict['Persons'][res_id] = updated_loc
 
     with open(entities_path, 'w') as output_file:
-        json.dump(entities_dict, output_file)
+        json.dump(entities_dict, output_file, indent=4)
 
     entities_graph.serialize(destination=graph_file, format='turtle')
 
@@ -85,7 +86,7 @@ def generate_document_resource(doc_iri, doc_label, text, graph):
     return text_iri
 
 
-def add_references(entities_json, text_res_iri, graph):
+def add_references(entities_json, text_res_iri, doc_name, graph):
     with open(entities_json) as input_file:
         entities_dict = json.load(input_file)
 
@@ -93,15 +94,16 @@ def add_references(entities_json, text_res_iri, graph):
     count = 0
     for key, references in entities.items():
         for item in references:
-            doc_label = item['document']
-            graph.add((text_res_iri, MYONTO.hasReferenceTo, URIRef(item['iri'])))
-            reference = BNode(doc_label + '_text_ref_' + str(count))
-            graph.add((reference, RDF.type, MYONTO.StandOffLink))
-            graph.add((reference, MYONTO.linkTo, URIRef(item['iri'])))
-            graph.add((reference, MYONTO.startChar, Literal(item['start_char'], datatype=XSD.integer)))
-            graph.add((reference, MYONTO.endChar, Literal(item['end_char'], datatype=XSD.integer)))
-            graph.add((text_res_iri, MYONTO.hasStandoffMarkUp, reference))
-            count += 1
+            if item['document'] == doc_name:
+                doc_label = item['document']
+                graph.add((text_res_iri, MYONTO.hasReferenceTo, URIRef(item['iri'])))
+                reference = BNode(doc_label + '_text_ref_' + str(count))
+                graph.add((reference, RDF.type, MYONTO.StandOffLink))
+                graph.add((reference, MYONTO.linkTo, URIRef(item['iri'])))
+                graph.add((reference, MYONTO.startChar, Literal(item['start_char'], datatype=XSD.integer)))
+                graph.add((reference, MYONTO.endChar, Literal(item['end_char'], datatype=XSD.integer)))
+                graph.add((text_res_iri, MYONTO.hasStandoffMarkUp, reference))
+                count += 1
     return graph
 
 
@@ -111,7 +113,7 @@ def create_document_resource(entities_json, inputs):
     document_graph.parse(graph_file, format='ttl')
     doc_iri = URIRef(DEFAULT + inputs.doc_name)
     text_iri = generate_document_resource(doc_iri, inputs.doc_name, inputs.text, graph=document_graph)
-    document_graph = add_references(entities_json, text_iri, graph=document_graph)
+    document_graph = add_references(entities_json, text_iri, inputs.doc_name, graph=document_graph)
 
     document_graph.serialize(destination=graph_file, format='turtle')
 
@@ -124,4 +126,8 @@ def create_resources_pipe(entities_json, inputs):
 
 
 if __name__ == '__main__':
-    pass
+    entities_json = os.path.join(os.getcwd(), 'dh2023', 'dh2023_entities.json')
+    test_input = Input(text_path=os.path.join(os.getcwd(), 'inputs', 'test_data', 'dh2023', 'fa_swiss.txt'),
+                       onto_path=os.path.join(os.getcwd(), 'inputs', 'ner_onto.ttl'),
+                       project_name='dh2023')
+    create_document_resource(entities_json, test_input)

@@ -7,6 +7,7 @@ from pipes.NER_pipe import ner_pipe
 from pipes.wiki_IR_pipe import wiki_IR_pipe
 from pipes.preprocess_pipe import preprocess_input
 
+
 def stage1(parser, existing_entities, inputs):
 
     found_locations, found_persons = ner_pipe(parser, inputs)
@@ -18,7 +19,6 @@ def stage1(parser, existing_entities, inputs):
         output_json.write(json.dumps(entities_dict, default=Entity.toJson, indent=4, ensure_ascii=True))
     create_resources_pipe(entities_json=json_path,
                           inputs=inputs)
-    print('End of stage 1!')
 
 
 if __name__ == '__main__':

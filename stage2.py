@@ -26,7 +26,6 @@ def stage2(inputs, entities_json):
     add_entity_relations(excel_file=excel_file_path,
                          entities_dict=entities,
                          inputs=inputs)
-    print('End of stage 2!')
 
 
 if __name__ == '__main__':

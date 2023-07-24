@@ -25,7 +25,7 @@ def make_loc_query(name, lang):
                        """wdt:P1566 ?geonameID .
     }
     """
-
+    print(sparql_statement)
     res = return_sparql_query_results(sparql_statement)
     results = res["results"]["bindings"]
     return results

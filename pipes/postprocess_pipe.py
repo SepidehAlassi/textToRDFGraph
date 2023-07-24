@@ -10,7 +10,7 @@ MYONTO = Namespace("http://www.NLPGraph.com/ontology/")
 
 def update_graph(links_to_add, document_label, project_name):
     graph = Graph()
-    graph_file_path = os.path.join(project_name, project_name + '_graph.ttl')
+    graph_file_path = os.path.join(project_name, project_name + '_graph_stage2.ttl')
     graph.parse(graph_file_path, format='ttl')
     star_statements = ""
     for link in links_to_add:
