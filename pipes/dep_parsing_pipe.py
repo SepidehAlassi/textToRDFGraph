@@ -139,7 +139,7 @@ def detect_entities(entity_rels, entities, lang):
 def parse_dependencies(text, project_name, lang, entities):
     pos_parser = SpacyPosParser(text, lang)
     pos_parser.visualize_pos(project_name=project_name)
-    sent_components = pos_parser.get_pos_tags()
+    sent_components = pos_parser.get_pos_taparse_gs()
     pos_parser.write_to_excel(sent_components, project_name)
     sent_components, pers_stack, loc_stack = detect_entities(sent_components, entities, lang)
     return sent_components, pers_stack, loc_stack

@@ -63,7 +63,8 @@ def from_json(dct):
                                                             document=pers['document'],
                                                             gnd=pers['gnd'],
                                                             given_name=pers['given_name'],
-                                                            family_name=pers['family_name']))
+                                                            family_name=pers['family_name'],
+                                                            gender=pers['gender']))
     return output
 
 

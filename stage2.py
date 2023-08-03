@@ -1,10 +1,12 @@
 from pipes.dep_parsing_pipe import parse_dependencies
 from pipes.postprocess_pipe import add_entity_relations
-from rdflib import Graph
+from pipes.pron_resolution_pipe import resolve_pronoun
+
 import os
 import json
 from Entitiy import from_json
 from pipes.preprocess_pipe import Input
+
 
 def read_entities(entities_json):
     with open(entities_json, 'r') as file:
@@ -17,10 +19,10 @@ def stage2(inputs, entities_json):
     entities = read_entities(entities_json)
 
     # dependency parsing pipe
-    sentence_comps, pers_stack, loc_stack = parse_dependencies(text=inputs.text, project_name=inputs.project_name, lang=inputs.lang, entities=entities)
+    sentence_comps, pers_stack, loc_stack = dependencies(text=inputs.text, project_name=inputs.project_name, lang=inputs.lang, entities=entities)
 
     # Pronoun resolution pipe
-    # TODO: separate this pipe
+    resolve_pronoun(sentence_comps, pers_stack, loc_stack)
 
     # update graph
     add_entity_relations(sentence_comps,
