@@ -53,10 +53,10 @@ def pipeline_multiple(dir_path, ontology_path, project_name):
         if text_path != text_paths[-1]:
             time.sleep(60)
     print('End of stage 1!')
-    for en_text in english_texts:
-        stage2(inputs=en_text,
-               entities_json=os.path.join(en_text.project_name, en_text.project_name + '_entities.json'))
-    print('End of stage 2!')
+    # for en_text in english_texts:
+    #     stage2(inputs=en_text,
+    #            entities_json=os.path.join(en_text.project_name, en_text.project_name + '_entities.json'))
+    # print('End of stage 2!')
 
 
 if __name__ == '__main__':
@@ -65,6 +65,11 @@ if __name__ == '__main__':
     ontology_path = os.path.join(working_dir, 'inputs', 'ner_onto.ttl')
     project_name = 'dh2023'
 
-    pipeline(text_path=text_path,
-             ontology_path=ontology_path,
-             project_name='testing')
+    # pipeline(text_path=text_path,
+    #          ontology_path=ontology_path,
+    #          project_name='testing')
+    data_folder = os.path.join(working_dir, 'inputs', 'test_data', 'dh2023')
+
+    pipeline_multiple(dir_path=data_folder,
+                      ontology_path=ontology_path,
+                      project_name=project_name)

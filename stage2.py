@@ -4,7 +4,7 @@ from rdflib import Graph
 import os
 import json
 from Entitiy import from_json
-
+from pipes.preprocess_pipe import Input
 
 def read_entities(entities_json):
     with open(entities_json, 'r') as file:
@@ -17,26 +17,21 @@ def stage2(inputs, entities_json):
     entities = read_entities(entities_json)
 
     # dependency parsing pipe
-    excel_file_path = parse_dependencies(text=inputs.text, project_name=inputs.project_name, lang=inputs.lang)
+    sentence_comps, pers_stack, loc_stack = parse_dependencies(text=inputs.text, project_name=inputs.project_name, lang=inputs.lang, entities=entities)
 
     # Pronoun resolution pipe
     # TODO: separate this pipe
 
     # update graph
-    add_entity_relations(excel_file=excel_file_path,
-                         entities_dict=entities,
+    add_entity_relations(sentence_comps,
                          inputs=inputs)
+    print('End of stage2')
 
 
 if __name__ == '__main__':
-    folder_path = os.path.join('inputs/test_data', 'dh2023')
-    document_name = 'en_swiss'
-    file_path = os.path.join(folder_path, document_name + '.txt')
-    with open(file_path, 'r') as file:
-        text = file.read()
-    stage2(onto_file=os.path.join(os.getcwd(), 'inputs/ner_onto.ttl'),
-           text=text,
-           doc_name=document_name,
-           lang='en',
-           project_name='tests',
-           entities_json=os.path.join('tests', 'test_entities.json'))
+    entities_json = os.path.join(os.getcwd(), 'dh2023', 'dh2023_entities.json')
+    test_input = Input(text_path=os.path.join(os.getcwd(), 'inputs', 'test_data', 'dh2023', 'en_swiss.txt'),
+                       onto_path=os.path.join(os.getcwd(), 'inputs', 'ner_onto.ttl'),
+                       project_name='dh2023')
+    stage2(inputs=test_input,
+           entities_json=entities_json)

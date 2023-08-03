@@ -8,9 +8,10 @@ import os
 DEFAULT = Namespace("http://www.NLPGraph.com/resource/")
 MYONTO = Namespace("http://www.NLPGraph.com/ontology/")
 
+
 def update_graph(links_to_add, document_label, project_name):
     graph = Graph()
-    graph_file_path = os.path.join(project_name, project_name + '_graph_stage2.ttl')
+    graph_file_path = os.path.join(project_name, project_name + '_graph.ttl')
     graph.parse(graph_file_path, format='ttl')
     star_statements = ""
     for link in links_to_add:
@@ -45,30 +46,21 @@ def extract_entity_relations(graph):
     return extracted_relations
 
 
-def add_entity_relations(excel_file, entities_dict, inputs:Input):
-
+def add_entity_relations(sentences, inputs: Input):
     relations = extract_entity_relations(graph=inputs.onto_graph)
-    pos_info = pd.read_excel(excel_file, sheet_name='POS info')  # returns a DataFrame
-    persons = [pers_occur[0] for pers_occur in entities_dict["Persons"].values()]
-    locations = [loc_occur[0] for loc_occur in entities_dict["Locations"].values()]
     links_to_add = []
-    for index, row in pos_info.iterrows():
+    for sent_num, sent_instances in sentences.items():
+        for sent_inst in sent_instances:
 
-        subj = row['Subject']
-        found_person = [pers for pers in persons if pers.text == subj]
-        if len(found_person) == 0:
-            continue
-        else:
-            subject_iri = found_person[0].iri
+            subj = sent_inst.subj
+            obj = sent_inst.object
+            if subj.token.pos_ != "PRON" and obj.token.pos_ != 'PRON':
+                subject_iri = subj.entity.iri
 
-        predicate = relations[row['Verb']]['prop']
-        obj = row['Object']
-        found_location = [loc for loc in locations if loc.text == obj]
-        if len(found_location) == 0:
-            continue
-        else:
-            object_iri = found_location[0].iri
-        links_to_add.append({'subj_iri': subject_iri, 'prop_iri': predicate, 'obj_iri': object_iri})
+                predicate = relations[sent_inst.verb.text]['prop']
+
+                object_iri = obj.entity.iri
+                links_to_add.append({'subj_iri': subject_iri, 'prop_iri': predicate, 'obj_iri': object_iri})
     update_graph(links_to_add, inputs.doc_name, inputs.project_name)
 
 
