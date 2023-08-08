@@ -107,8 +107,8 @@ class SpacyPosParser:
             file.write(dep_svg)
 
 
-def detect_entities(entity_rels, entities, lang):
-    def get_entity(component):
+def parse_entities(entity_rels, entities, lang):
+    def get_entity(component, persons):
         if component.token.pos_ == 'PROPN':
             ent_type = component.token.ent_type_
             if ent_type == 'PERSON' or ent_type == 'PER':
@@ -116,33 +116,33 @@ def detect_entities(entity_rels, entities, lang):
                     found_pers = [pers_item for pers_item in pers_items if
                                  pers_item.text == component.text and pers_item.language == lang]
                     if len(found_pers) > 0:
-                        pers_stack.append(found_pers[0])
+                        persons.append(found_pers[0])
                         component.entity = found_pers[0]
                         break
             else:
                 for _, loc_items in entities['Locations'].items():
                     found_loc = [loc_item for loc_item in loc_items if loc_item.text == component.text and loc_item.language == lang]
-                    if len(found_loc)>0:
-                        loc_stack.append(found_loc[0])
-                        component.entity=found_loc[0]
+                    if len(found_loc) > 0:
+                        component.entity = found_loc[0]
                         break
 
-    pers_stack = []
-    loc_stack = []
+    pers_stack = {}
     for sent_num, sent_rels in entity_rels.items():
+        persons = []
         for sentence_instance in sent_rels:
-            get_entity(sentence_instance.subj)
-            get_entity(sentence_instance.object)
-    return entity_rels, pers_stack, loc_stack
+            get_entity(sentence_instance.subj, persons)
+            get_entity(sentence_instance.object, persons)
+        pers_stack[sent_num] = persons
+    return entity_rels, pers_stack
 
 
 def parse_dependencies(text, project_name, lang, entities):
     pos_parser = SpacyPosParser(text, lang)
     pos_parser.visualize_pos(project_name=project_name)
-    sent_components = pos_parser.get_pos_taparse_gs()
+    sent_components = pos_parser.get_pos_tags()
     pos_parser.write_to_excel(sent_components, project_name)
-    sent_components, pers_stack, loc_stack = detect_entities(sent_components, entities, lang)
-    return sent_components, pers_stack, loc_stack
+    sent_components, pers_stack = parse_entities(sent_components, entities, lang)
+    return sent_components, pers_stack
 
 
 if __name__ == '__main__':
