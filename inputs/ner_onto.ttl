@@ -17,6 +17,10 @@ myOnto:Document   rdf:type owl:Class ;
           rdfs:label "Text Document"@en ;
           rdfs:comment "Input Document for pipeline"@en .
 
+myOnto:NamedEntity   rdf:type owl:Class ;
+          rdfs:label "Named Entity"@en ;
+          rdfs:comment "A named entity."@en .
+
 myOnto:hasText rdf:type owl:ObjectProperty ;
          rdfs:domain myOnto:Document ;
          rdfs:range  myOnto:Text ;
@@ -28,7 +32,7 @@ myOnto:hasLanguage rdf:type owl:DatatypeProperty ;
          rdfs:label "Language"@en .
 
 myOnto:Location rdf:type owl:Class ;
-          rdfs:subClassOf schema:Place ;
+          rdfs:subClassOf myOnto:NamedEntity, schema:Place ;
           rdfs:label "Location"@en ;
           rdfs:comment "A Location"@en .
 
@@ -49,7 +53,7 @@ myOnto:name  rdf:type owl:DatatypeProperty ;
        rdfs:range xsd:string .
 
 myOnto:Person rdf:type owl:Class ;
-        rdfs:subClassOf schema:Person ;
+        rdfs:subClassOf myOnto:NamedEntity, schema:Person ;
         rdfs:label "Person"@en ;
         rdfs:comment "A resource representing a person."@en .
 

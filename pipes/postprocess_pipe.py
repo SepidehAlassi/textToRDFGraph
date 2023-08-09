@@ -3,6 +3,8 @@ from rdflib.namespace import Namespace
 from pipes.preprocess_pipe import Input
 import os
 import pandas as pd
+from nltk.corpus import wordnet
+
 # Add namespace
 DEFAULT = Namespace("http://www.NLPGraph.com/resource/")
 MYONTO = Namespace("http://www.NLPGraph.com/ontology/")
@@ -47,8 +49,10 @@ def extract_entity_relations(graph):
         SELECT ?prop ?prop_label
         WHERE {
             ?prop a owl:ObjectProperty .
-            ?prop rdfs:domain myOnto:Person .    
-            ?prop rdfs:range myOnto:Location .
+            ?prop rdfs:domain ?domain_class .
+            ?domain_class rdfs:subClassOf myOnto:NamedEntity .    
+            ?prop rdfs:range ?range_class .
+            ?range_class rdfs:subClassOf myOnto:NamedEntity . 
             ?prop rdfs:label ?prop_label .
             FILTER ( lang(?prop_label) = "en" )
         }
@@ -80,11 +84,31 @@ def update_graph(sentences, inputs: Input):
             if subj.entity != {} and obj.entity != {}:
                 subject_iri = subj.entity.iri
 
-                predicate = relations[sent_inst.verb.text]['prop']
-
+                flag, predicate = is_valid_edge(sent_inst.verb, relations)
+                if not flag:
+                    continue
                 object_iri = obj.entity.iri
                 links_to_add.append({'subj_iri': subject_iri, 'prop_iri': predicate, 'obj_iri': object_iri})
     add_new_edges(links_to_add, inputs.doc_name, inputs.project_name)
+
+
+def is_valid_edge(verb, onto_edges):
+    synonyms = []
+    synonyms.append(verb.text)
+    verb_stem = verb.token.text
+
+    for syn in wordnet.synsets(verb_stem):
+        for l in syn.lemmas():
+            synonyms.append(l.name())
+    flag = False
+    prop_iri = None
+    for key in list(onto_edges.keys()):
+        if key in synonyms:
+            flag = True
+            prop_iri = onto_edges[key]['prop']
+            break
+    return flag, prop_iri
+
 
 
 if __name__ == '__main__':
