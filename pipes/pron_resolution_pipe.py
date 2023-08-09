@@ -32,10 +32,14 @@ def resolve_pronoun(morphology, component, sent_num, persons_stack, lang):
 def is_resolvable(morphology):
     gender = morphology.get('Gender')
     number = morphology.get('Number')
+    person = morphology.get('Person')
     case = morphology.get('Case')
+    pron_type = morphology.get('PronType')
+    if pron_type != 'Prs':
+        return False
     if gender == 'Neut':
         return False
-    if number == 'Sing' and (case == 'Nom' or case == 'Acc'):
+    if (number == 'Sing' and person == '3') and (case == 'Nom' or case == 'Acc'):
         return True
     else:
         return False

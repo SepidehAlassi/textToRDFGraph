@@ -10,7 +10,8 @@ from pipes.wiki_IR_pipe import add_wiki_info_person, add_wiki_info_location
 
 class FlairPosParser:
     def __init__(self):
-        self.pos_models_dict = {'en': "flair/pos-english"}
+        self.pos_models_dict = {'en': "flair/pos-english",
+                                'de': "flair/de-pos-fine-grained"}
 
     def get_pos_tags(self, text, lang):
         # load tagger
@@ -52,10 +53,10 @@ def flair_pos_test(text, lang):
 
 
 if __name__ == '__main__':
-    test_data_path = "../../inputs/test_data/dh2023"
-
-    test_file = "fa_swiss.txt"
-    test_data = os.path.join(test_data_path, test_file)
-    test_text = open(test_data, "r").read()
-    flair_ner_test(test_text, 'fa', 'fa_swiss')
-    flair_pos_test('Leonhard Euler was born in Basel.', 'en')
+    # test_data_path = "../../inputs/test_data/dh2023"
+    #
+    # test_file = "fa_swiss.txt"
+    # test_data = os.path.join(test_data_path, test_file)
+    # test_text = open(test_data, "r").read()
+    # flair_ner_test(test_text, 'fa', 'fa_swiss')
+    flair_pos_test("John wohnte in Basel. Jane ist in Basel geboren. Sie reisten nach Lyon.", 'de')

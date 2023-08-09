@@ -10,8 +10,8 @@ class SpacyParser:
     def __init__(self):
         pass
 
-    def spacy_parse(self, text, lang='en'):
-        model = spacy.load(models_dict[lang])
+    def spacy_parse(self, text, lang='en', disable=[]):
+        model = spacy.load(models_dict[lang], disable=disable)
         doc = model(text)
         return doc
 
