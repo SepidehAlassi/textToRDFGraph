@@ -1,5 +1,5 @@
 from pipes.dep_parsing_pipe import parse_dependencies
-from pipes.postprocess_pipe import add_entity_relations
+from pipes.postprocess_pipe import post_processing_pipe
 from pipes.pron_resolution_pipe import pronoun_resolution_pipe
 
 import os
@@ -19,14 +19,14 @@ def stage2(inputs, entities_json):
     entities = read_entities(entities_json)
 
     # dependency parsing pipe
-    sentence_comps, pers_stack = parse_dependencies(text=inputs.text, project_name=inputs.project_name, lang=inputs.lang, entities=entities)
+    sentence_comps, pers_stack = parse_dependencies(text=inputs.text, project_name=inputs.project_name,
+                                                    lang=inputs.lang, entities=entities)
 
     # Pronoun resolution pipe
     pronoun_resolution_pipe(sentence_comps, pers_stack, lang=inputs.lang)
 
-    # update graph
-    add_entity_relations(sentence_comps,
-                         inputs=inputs)
+    # Postprocessing the graph
+    post_processing_pipe(sentence_comps, inputs=inputs)
     print('End of stage2')
 
 

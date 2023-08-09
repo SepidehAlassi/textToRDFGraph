@@ -1,15 +1,29 @@
-import pandas as pd
 from rdflib import Graph, URIRef
 from rdflib.namespace import Namespace
 from pipes.preprocess_pipe import Input
 import os
-
+import pandas as pd
 # Add namespace
 DEFAULT = Namespace("http://www.NLPGraph.com/resource/")
 MYONTO = Namespace("http://www.NLPGraph.com/ontology/")
 
 
-def update_graph(links_to_add, document_label, project_name):
+def write_to_excel(tags_dict, project_name):
+    pos_info = pd.DataFrame(data={'Sentence Num': [], 'Subject': [], 'Verb': [], 'Object': []})
+    for sent_num, sent_info in tags_dict.items():
+        for info_item in sent_info:
+            pos_info = pd.concat([pos_info, pd.DataFrame([{'Sentence Num': sent_num,
+                                                           'Subject': info_item.subj.entity.text,
+                                                           'Verb': info_item.verb.text,
+                                                           'Object': info_item.obj.entity.text
+                                                           }])], ignore_index=True)
+    excel_file = project_name + '_pos_info.xlsx'
+    file_path = os.path.join(project_name, excel_file)
+    with pd.ExcelWriter(file_path) as writer:
+        pos_info.to_excel(writer, sheet_name='POS info')
+
+
+def add_new_edges(links_to_add, document_label, project_name):
     graph = Graph()
     graph_file_path = os.path.join(project_name, project_name + '_graph.ttl')
     graph.parse(graph_file_path, format='ttl')
@@ -46,22 +60,31 @@ def extract_entity_relations(graph):
     return extracted_relations
 
 
-def add_entity_relations(sentences, inputs: Input):
+def post_processing_pipe(sentences, inputs: Input):
+    # Output the extracted relations in Excel
+    write_to_excel(sentences, inputs.project_name)
+
+    # enrich the graph with relations
+    update_graph(sentences, inputs)
+
+
+def update_graph(sentences, inputs: Input):
+
     relations = extract_entity_relations(graph=inputs.onto_graph)
     links_to_add = []
     for sent_num, sent_instances in sentences.items():
         for sent_inst in sent_instances:
 
             subj = sent_inst.subj
-            obj = sent_inst.object
-            if subj.token.pos_ != "PRON" and obj.token.pos_ != 'PRON':
+            obj = sent_inst.obj
+            if subj.entity != {} and obj.entity != {}:
                 subject_iri = subj.entity.iri
 
                 predicate = relations[sent_inst.verb.text]['prop']
 
                 object_iri = obj.entity.iri
                 links_to_add.append({'subj_iri': subject_iri, 'prop_iri': predicate, 'obj_iri': object_iri})
-    update_graph(links_to_add, inputs.doc_name, inputs.project_name)
+    add_new_edges(links_to_add, inputs.doc_name, inputs.project_name)
 
 
 if __name__ == '__main__':

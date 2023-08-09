@@ -15,7 +15,7 @@ class SentenceComp:
 class Sentence:
     def __init__(self, subj='', verb='', obj=''):
         self.subj = subj
-        self.object = obj
+        self.obj = obj
         self.verb = verb
 
 
@@ -59,12 +59,12 @@ class SpacyPosParser:
                     sent_obj.verb.text += ' ' + prep.text
 
                 for obj in objects:
-                    sent_obj.object = SentenceComp(obj.text, obj)
+                    sent_obj.obj = SentenceComp(obj.text, obj)
 
             found_sent_objects.append(sent_obj)
             conjs = [token for token in sent if token.dep_ == 'conj']
             for conj in conjs:
-                new_obj = Sentence(sent_obj.subj, sent_obj.verb, sent_obj.object)
+                new_obj = Sentence(sent_obj.subj, sent_obj.verb, sent_obj.obj)
                 compound = [token for token in sent if token.dep_ in self.compound_tags and token.head == conj]
                 comp = ''
                 if len(compound):
@@ -73,25 +73,10 @@ class SpacyPosParser:
                 if conj.head.dep_ in self.subject_tags:
                     new_obj.subj = SentenceComp(comp + conj.text, conj)
                 else:  # objects
-                    new_obj.object = SentenceComp(comp + conj.text, conj)
+                    new_obj.obj = SentenceComp(comp + conj.text, conj)
                 found_sent_objects.append(new_obj)
 
         return found_sent_objects
-
-    def write_to_excel(self, tags_dict, project_name):
-        pos_info = pd.DataFrame(data={'Sentence Num': [], 'Subject': [], 'Verb': [], 'Object': []})
-        for sent_num, sent_info in tags_dict.items():
-            for info_item in sent_info:
-                pos_info = pd.concat([pos_info, pd.DataFrame([{'Sentence Num': sent_num,
-                                                               'Subject': info_item.subj.text,
-                                                               'Verb': info_item.verb.text,
-                                                               'Object': info_item.object.text
-                                                               }])], ignore_index=True)
-        excel_file = project_name + '_pos_info.xlsx'
-        file_path = os.path.join(project_name, excel_file)
-        with pd.ExcelWriter(file_path) as writer:
-            pos_info.to_excel(writer, sheet_name='POS info')
-        return pos_info
 
     def get_pos_tags(self):
         sentences = list(self.doc.sents)
@@ -100,11 +85,12 @@ class SpacyPosParser:
             sent_components[idx] = self.break_sentence(sent)
         return sent_components
 
-    def visualize_pos(self, project_name):
-        dep_svg = displacy.render(self.doc, style="dep")
-        filepath = os.path.join(project_name, project_name + "_dep_vis.svg")
-        with open(filepath, "w", encoding="utf-8") as file:
-            file.write(dep_svg)
+
+def visualize_pos(doc, project_name):
+    dep_svg = displacy.render(doc, style="dep")
+    filepath = os.path.join(project_name, project_name + "_dep_vis.svg")
+    with open(filepath, "w", encoding="utf-8") as file:
+        file.write(dep_svg)
 
 
 def parse_entities(entity_rels, entities, lang):
@@ -131,16 +117,15 @@ def parse_entities(entity_rels, entities, lang):
         persons = []
         for sentence_instance in sent_rels:
             get_entity(sentence_instance.subj, persons)
-            get_entity(sentence_instance.object, persons)
+            get_entity(sentence_instance.obj, persons)
         pers_stack[sent_num] = persons
     return entity_rels, pers_stack
 
 
 def parse_dependencies(text, project_name, lang, entities):
     pos_parser = SpacyPosParser(text, lang)
-    pos_parser.visualize_pos(project_name=project_name)
+    visualize_pos(pos_parser.doc, project_name=project_name)
     sent_components = pos_parser.get_pos_tags()
-    pos_parser.write_to_excel(sent_components, project_name)
     sent_components, pers_stack = parse_entities(sent_components, entities, lang)
     return sent_components, pers_stack
 

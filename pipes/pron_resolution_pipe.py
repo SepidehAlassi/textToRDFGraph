@@ -13,7 +13,6 @@ def pronoun_resolution_pipe(sentence_comp, pers_stack, lang):
                     morph_info = comp.token.morph.to_dict()
                     if is_resolvable(morph_info):
                         resolve_pronoun(morph_info, comp, sent_num, pers_stack, lang)
-                        print("returned")
 
 
 def resolve_pronoun(morphology, component, sent_num, persons_stack, lang):
@@ -21,7 +20,7 @@ def resolve_pronoun(morphology, component, sent_num, persons_stack, lang):
 
     gender = morphology.get('Gender')
     for sent in sent_ids[::-1]:
-        persons = persons_stack[sent]
+        persons = persons_stack[sent].copy()
         while len(persons) > 0:
             pers = persons.pop()
             if pers.gender == gender_map[gender][lang]:

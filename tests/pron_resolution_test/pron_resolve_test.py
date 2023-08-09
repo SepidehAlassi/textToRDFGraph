@@ -115,5 +115,6 @@ class PronResolve(unittest.TestCase):
             resolve_pronoun(pronoun2.morph.to_dict(), component, 2, persons_de, 'de')
             self.assertEqual(component.entity, john_de)
 
+
 if __name__ == '__main__':
     unittest.main()
