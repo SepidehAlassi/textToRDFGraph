@@ -10,14 +10,19 @@ DEFAULT = Namespace("http://www.NLPGraph.com/resource/")
 NLPG = Namespace("http://www.NLPGraph.com/ontology/")
 
 
-def write_to_excel(tags_dict, project_name):
+def write_to_excel(sent_comps, project_name):
+    """
+    Write the extract relations between named entities given in the text to an Excel file for verification.
+    :param sent_comps: the relations between named entities extracted from sentences of input text
+    :param project_name: the name of the input project
+    """
     pos_info = pd.DataFrame(data={'Sentence Num': [], 'Subject': [], 'Verb': [], 'Object': []})
-    for sent_num, sent_info in tags_dict.items():
-        for info_item in sent_info:
+    for sent_num, sent_instances in sent_comps.items():
+        for relation in sent_instances:
             pos_info = pd.concat([pos_info, pd.DataFrame([{'Sentence Num': sent_num,
-                                                           'Subject': info_item.subj.entity.text,
-                                                           'Verb': info_item.verb.text,
-                                                           'Object': info_item.obj.entity.text
+                                                           'Subject': relation.subj.entity.text,
+                                                           'Verb': relation.verb.text,
+                                                           'Object': relation.obj.entity.text
                                                            }])], ignore_index=True)
     excel_file = project_name + '_pos_info.xlsx'
     file_path = os.path.join(project_name, excel_file)
@@ -26,6 +31,12 @@ def write_to_excel(tags_dict, project_name):
 
 
 def add_new_edges(links_to_add, document_label, project_name):
+    """
+    Add new edges to the graph that represent links between two named entities.
+    :param links_to_add: new edges to be added to the graph
+    :param document_label: the document that is the source of the extracted links
+    :param project_name: the name of the input project
+    """
     graph = Graph()
     graph_file_path = os.path.join(project_name, project_name + '_graph.ttl')
     graph.parse(graph_file_path, format='ttl')
@@ -40,7 +51,12 @@ def add_new_edges(links_to_add, document_label, project_name):
         graph_file.write(star_statements)
 
 
-def extract_entity_relations(graph):
+def extract_entity_relations(onto_graph):
+    """
+    From the input ontology, extract the properties with named entities given in their domain and range
+    :param onto_graph: ontology graph
+    :return: properties that describe links between two named entities
+    """
     link_props = """
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
         PREFIX owl:  <http://www.w3.org/2002/07/owl#> 
@@ -59,24 +75,38 @@ def extract_entity_relations(graph):
     """
 
     extracted_relations = {}
-    for r in graph.query(link_props):
+    for r in onto_graph.query(link_props):
         extracted_relations[r['prop_label'].lower()] = {'prop': r['prop']}
     return extracted_relations
 
 
-def post_process_graph(sentences, inputs: Input):
-    # Output the extracted relations in Excel
-    write_to_excel(sentences, inputs.project_name)
+def post_process_graph(sentence_comps, inputs: Input):
+    """
+    1. Write relations between entities extracted from text to Excel,
+    2. extract relations from the input ontology,
+    3. Match the extracted relations from text and ontology, and update the graph accordingly
+    :param sentence_comps: the relations between named entities extracted from sentences of input text
+    :param inputs: the input data collection
+    """
+    # Output the extracted sentence components in Excel
+    write_to_excel(sentence_comps, inputs.project_name)
 
-    # enrich the graph with relations
-    update_graph(sentences, inputs)
+    # Extract relations between entities specified in the input ontology
+    relation_props = extract_entity_relations(onto_graph=inputs.onto_graph)
+
+    # Enrich the graph with relations
+    update_graph(sentence_comps, inputs, relation_props)
 
 
-def update_graph(sentences, inputs: Input):
-
-    relations = extract_entity_relations(graph=inputs.onto_graph)
+def update_graph(sentence_comps, inputs: Input, relation_props):
+    """
+    Update the graph, i.e. update resources, add edges, add metadata, etc.
+    :param sentence_comps: the relations between named entities extracted from sentences of input text
+    :param inputs: collection of input data
+    :param relation_props: properties given in the ontology relation named entity resources
+    """
     links_to_add = []
-    for sent_num, sent_instances in sentences.items():
+    for sent_num, sent_instances in sentence_comps.items():
         for sent_inst in sent_instances:
 
             subj = sent_inst.subj
@@ -84,7 +114,7 @@ def update_graph(sentences, inputs: Input):
             if subj.entity != {} and obj.entity != {}:
                 subject_iri = subj.entity.iri
 
-                flag, predicate = is_valid_edge(sent_inst.verb, relations)
+                flag, predicate = is_valid_edge(sent_inst.verb, relation_props)
                 if not flag:
                     continue
                 object_iri = obj.entity.iri
@@ -92,7 +122,13 @@ def update_graph(sentences, inputs: Input):
     add_new_edges(links_to_add, inputs.doc_name, inputs.project_name)
 
 
-def is_valid_edge(verb, onto_edges):
+def is_valid_edge(verb, onto_relation_props):
+    """
+    Is a relation extracted from text between two named entity a valid/wanted one according to the ontology?
+    :param verb: a verb component extracted from text with named entities in subject and object positions
+    :param onto_relation_props: properties between named entities described in the ontology.
+    :return: boolean flag and prop_iri
+    """
     synonyms = []
     synonyms.append(verb.text)
     verb_stem = verb.token.text
@@ -102,13 +138,12 @@ def is_valid_edge(verb, onto_edges):
             synonyms.append(l.name())
     flag = False
     prop_iri = None
-    for key in list(onto_edges.keys()):
+    for key in list(onto_relation_props.keys()):
         if key in synonyms:
             flag = True
-            prop_iri = onto_edges[key]['prop']
+            prop_iri = onto_relation_props[key]['prop']
             break
     return flag, prop_iri
-
 
 
 if __name__ == '__main__':

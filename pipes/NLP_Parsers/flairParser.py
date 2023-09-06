@@ -33,7 +33,7 @@ class FlairPosParser:
 
 def flair_ner_test(text, lang, document):
     parser = FlairNERParser()
-    _, locations, persons = parser.get_entities(text, lang)
+    _, locations, persons = parser.extract_ne(text, lang)
     found_persons = add_wiki_info_person(persons, document)
     found_locations = add_wiki_info_location(locations, document)
 

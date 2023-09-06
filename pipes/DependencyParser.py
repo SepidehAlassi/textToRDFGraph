@@ -28,6 +28,11 @@ class SpacyPosParser:
         self.object_tags = ['pobj', 'dobj', 'iobj', 'nk']
 
     def break_sentence(self, sent):
+        """
+        Break the sentence into subject, verb, object.
+        :param sent: input sentence
+        :return: sentence components
+        """
         subjects = [token for token in sent if token.dep_ in self.subject_tags]
         objects = [token for token in sent if token.dep_ in self.object_tags]
         found_sent_objects = []
@@ -77,7 +82,11 @@ class SpacyPosParser:
 
         return found_sent_objects
 
-    def get_pos_tags(self):
+    def get_sent_components(self):
+        """
+        Get the components of sentences in the text
+        :return: a dictionary with sentence index and components found in that sentence describing relation.
+        """
         sentences = list(self.doc.sents)
         sent_components = {}
         for idx, sent in enumerate(sentences):
@@ -86,16 +95,29 @@ class SpacyPosParser:
 
 
 def visualize_pos(doc, project_name):
+    """
+    Visualize dependencies in the sentences of the input text
+    :param doc: spacy document object for the input text
+    :param project_name:project name
+    """
     dep_svg = displacy.render(doc, style="dep")
     filepath = os.path.join(project_name, project_name + "_dep_vis.svg")
     with open(filepath, "w", encoding="utf-8") as file:
         file.write(dep_svg)
 
 
-def parse_entities(entity_rels, entities, lang):
+def get_entity_of_sentence_component(sentence_components, entities, lang):
+    """
+    1. Get the entity record corresponding to a parsed sentence component
+    2. Make a stack of person entities of the text for pronoun resolution later
+    :param sentence_components: the extracted entity relations through dependency parsing
+    :param entities: previously extracted named entities
+    :param lang:language of the text
+    :return: updated sentence components and persons stack
+    """
     pers_labels = ['PERSON', 'PER']
 
-    def get_entity(component, persons):
+    def get_ne_record_of_token(component, persons):
         if component.token.pos_ == 'PROPN':
             ent_type = component.token.ent_type_
             if ent_type in pers_labels:
@@ -112,22 +134,30 @@ def parse_entities(entity_rels, entities, lang):
                     if len(found_loc) > 0:
                         component.entity = found_loc[0]
                         break
-
+    #collect person entities for pronoun resolution later
     pers_stack = {}
-    for sent_num, sent_rels in entity_rels.items():
+    for sent_num, sent_rels in sentence_components.items():
         persons = []
         for sentence_instance in sent_rels:
-            get_entity(sentence_instance.subj, persons)
-            get_entity(sentence_instance.obj, persons)
+            get_ne_record_of_token(sentence_instance.subj, persons)
+            get_ne_record_of_token(sentence_instance.obj, persons)
         pers_stack[sent_num] = persons
-    return entity_rels, pers_stack
+    return sentence_components, pers_stack
 
 
 def parse_dependencies(text, project_name, lang, entities):
+    """
+    Parse dependencies of tokens in the text.
+    :param text: input text
+    :param project_name: input project name
+    :param lang: language of the text
+    :param entities: extracted named entities
+    :return: sentence components and persons stack extracted form the text
+    """
     pos_parser = SpacyPosParser(text, lang)
     visualize_pos(pos_parser.doc, project_name=project_name)
-    sent_components = pos_parser.get_pos_tags()
-    sent_components, pers_stack = parse_entities(sent_components, entities, lang)
+    sent_components = pos_parser.get_sent_components()
+    sent_components, pers_stack = get_entity_of_sentence_component(sent_components, entities, lang)
     return sent_components, pers_stack
 
 

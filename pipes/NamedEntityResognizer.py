@@ -12,6 +12,12 @@ class SpacyNERParser:
         self.personLabels = ['PER', 'PERSON']
 
     def extract_person_entities(self, entities, lang):
+        """
+        Extract person named entities with Spacy
+        :param entities: already extracted named entities of the project
+        :param lang: language of the input text
+        :return: person entities
+        """
         found_persons = []
         person_entities = list(filter(lambda ent: ent.label_ in self.personLabels, entities))
 
@@ -23,6 +29,12 @@ class SpacyNERParser:
         return found_persons
 
     def extract_location_entities(self, entities, lang):
+        """
+        Extract location named entities with Spacy
+        :param entities: already extracted named entities of the project
+        :param lang: language of the input text
+        :return: location entities
+        """
         found_locations = []
         geo_entities = list(filter(lambda ent: ent.label_ in self.locationLabels, entities))
 
@@ -33,10 +45,11 @@ class SpacyNERParser:
 
         return found_locations
 
-    def get_entities(self, inputs: Input):
+    def extract_ne(self, inputs: Input):
         """
+        Extract named entities from the input text with Spacy
         :param inputs: preprocessed inputs of the pipeline
-        :return: parsed doc, found location and person entities.
+        :return: found location and person entities.
         """
 
         def store_ner_vis(doc, inputs: Input):
@@ -60,7 +73,12 @@ class FlairNERParser:
                                 'de': "flair/ner-german-large",
                                 'fa': 'hamedkhaledi/persain-flair-ner'}
 
-    def get_entities(self, inputs: Input):
+    def extract_ne(self, inputs: Input):
+        """
+        Extract named entities with flair
+        :param inputs: collection of input data
+        :return: location and person entities
+        """
         tagger = SequenceTagger.load(self.ner_models_dict[inputs.lang])
 
         # make example sentences
@@ -75,6 +93,12 @@ class FlairNERParser:
         return locations, persons
 
     def extract_location_entities(self, entities, lang):
+        """
+        Extract location entities with flair
+        :param entities: already extracted entities of the project
+        :param lang: language of the text
+        :return: location entities
+        """
         extracted_locations = []
         for entity in entities:
             tag = entity.get_label('ner')
@@ -92,6 +116,12 @@ class FlairNERParser:
         return extracted_locations
 
     def extract_person_entities(self, entities, lang):
+        """
+        Extract person entities with flair
+        :param entities: already extracted entities of the project
+        :param lang: language of the text
+        :return: person entities
+        """
         extracted_persons = []
         for entity in entities:
             tag = entity.get_label('ner')
@@ -106,13 +136,19 @@ class FlairNERParser:
 
 
 def parse_NE(parser_type, inputs: Input):
+    """
+    Parse named entities from input text
+    :param parser_type: type of parser to use, spacy or flair
+    :param inputs: collection of input data
+    :return: location and person entities
+    """
     if parser_type == 'flair':
         print('NER with flair')
         parser = FlairNERParser()
     else:
         print('NER with spaCy')
         parser = SpacyNERParser()
-    return parser.get_entities(inputs)
+    return parser.extract_ne(inputs)
 
 
 def ner_test(parser, inputs:  Input):

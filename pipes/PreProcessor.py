@@ -5,6 +5,11 @@ from rdflib import Graph
 
 
 def parse_ontology(file):
+    """
+    Parse the input ontology to a graph
+    :param file: ontology file
+    :return: graph representing the ontology
+    """
     graph = Graph()
     graph.parse(file, format='ttl')
     return graph
@@ -19,6 +24,11 @@ class Input:
 
 
 def detect_lang(text):
+    """
+    Detect the language of the input text
+    :param text: input text of the pipeline
+    :return: language of the text
+    """
     lang = detect(text)
     supported_langs = ['en', 'de', 'fa']
     if lang not in supported_langs:
@@ -28,6 +38,11 @@ def detect_lang(text):
 
 
 def read_text(text_path):
+    """
+    Read text content
+    :param text_path: Path to the text file
+    :return: text string and name of the text document
+    """
     with open(text_path) as file:
         text = file.read()
     document_name, _ = os.path.basename(text_path).split('.')
@@ -35,6 +50,13 @@ def read_text(text_path):
 
 
 def preprocess_input(text_path, onto_path, project_name):
+    """
+    Preprocess the inputs of the pipeline into an object
+    :param text_path: path to the input text
+    :param onto_path: path to the input ontology
+    :param project_name: name of the project
+    :return: Input object containing collection of pipeline's input data
+    """
     inputs = Input(text_path, onto_path, project_name)
     return inputs
 

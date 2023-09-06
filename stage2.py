@@ -1,6 +1,6 @@
 from pipes.DependencyParser import parse_dependencies
 from pipes.PostProcessor import post_process_graph
-from pipes.PronounResolver import process_anaphors
+from pipes.PronounResolver import resolve_pronouns
 
 import os
 import json
@@ -23,7 +23,8 @@ def stage2(inputs, entities_json):
                                                     lang=inputs.lang, entities=entities)
 
     # Pronoun resolution pipe
-    process_anaphors(sentence_comps, pers_stack, lang=inputs.lang)
+    resolve_pronouns(sentence_comps, pers_stack, lang=inputs.lang)
+
 
     # Postprocessing the graph
     post_process_graph(sentence_comps, inputs=inputs)
