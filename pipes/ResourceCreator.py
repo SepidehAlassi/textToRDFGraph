@@ -2,14 +2,14 @@ import json
 import os
 from rdflib import Graph, Literal, URIRef, BNode
 from rdflib.namespace import XSD, Namespace, SDO, RDF, RDFS, OWL
-from pipes.preprocess_pipe import Input
+from pipes.PreProcessor import Input
 
 # Add namespace
 DEFAULT = Namespace("http://www.NLPGraph.com/resource/")
-MYONTO = Namespace("http://www.NLPGraph.com/ontology/")
+NLPG = Namespace("http://www.NLPGraph.com/ontology/")
 
 
-def generate_entity_resource(references, res_iri, type, graph):
+def add_resource_to_graph(references, res_iri, type, graph):
     names = {}
     for reference in references:
         name = reference['text']
@@ -19,15 +19,15 @@ def generate_entity_resource(references, res_iri, type, graph):
 
     graph.add((res_iri, RDF.type, type))
     for lang, name in names.items():
-        graph.add((res_iri, MYONTO.name, Literal(name, lang=lang)))
+        graph.add((res_iri, NLPG.name, Literal(name, lang=lang)))
     wiki_id = references[0].get('wiki_id')
     graph.add((res_iri, OWL.sameAs, Literal(wiki_id, datatype=XSD.anyURI)))
-    if type == MYONTO.Location:
-        graph.add((res_iri, MYONTO.geoName, Literal(references[0].get('geoname_id'), datatype=XSD.string)))
+    if type == NLPG.Location:
+        graph.add((res_iri, NLPG.geoName, Literal(references[0].get('geoname_id'), datatype=XSD.string)))
     else:
         graph.add((res_iri, SDO.givenName, Literal(references[0].get('given_name'), datatype=XSD.string)))
         graph.add((res_iri, SDO.familyName, Literal(references[0].get('family_name'), datatype=XSD.string)))
-        graph.add((res_iri, MYONTO.gnd, Literal(references[0].get('gnd'), datatype=XSD.string)))
+        graph.add((res_iri, NLPG.gnd, Literal(references[0].get('gnd'), datatype=XSD.string)))
         graph.add((res_iri, SDO.gender, Literal(references[0].get('gender'), datatype=XSD.string)))
     return references
 
@@ -39,7 +39,7 @@ def initialize_graph(graph_file):
     else:
         entities_graph.bind("schema", SDO)
         entities_graph.bind("", DEFAULT)
-        entities_graph.bind("myOnto", MYONTO)
+        entities_graph.bind("nlpg", NLPG)
     return entities_graph
 
 
@@ -54,15 +54,15 @@ def create_entity_resources(entities_path, project_name):
 
     for res_id, references in locations.items():
         iri = URIRef(DEFAULT + res_id)
-        updated_loc = generate_entity_resource(references=references, res_iri=iri, type=MYONTO.Location,
-                                               graph=entities_graph)
+        updated_loc = add_resource_to_graph(references=references, res_iri=iri, type=NLPG.Location,
+                                            graph=entities_graph)
 
         entities_dict['Locations'][res_id] = updated_loc
 
     for res_id, references in persons.items():
         iri = URIRef(DEFAULT + res_id.lstrip('(DE-588)'))
-        updated_loc = generate_entity_resource(references=references, res_iri=iri, type=MYONTO.Person,
-                                               graph=entities_graph)
+        updated_loc = add_resource_to_graph(references=references, res_iri=iri, type=NLPG.Person,
+                                            graph=entities_graph)
 
         entities_dict['Persons'][res_id] = updated_loc
 
@@ -75,14 +75,14 @@ def create_entity_resources(entities_path, project_name):
 def generate_document_resource(doc_iri, doc_label, text, graph):
     def generate_text_resource(text, doc_label):
         text_res_iri = URIRef(DEFAULT + doc_label + '_' + 'text')
-        graph.add((text_res_iri, RDF.type, MYONTO.Text))
-        graph.add((text_res_iri, MYONTO.textContent, Literal(text)))
+        graph.add((text_res_iri, RDF.type, NLPG.Text))
+        graph.add((text_res_iri, NLPG.textContent, Literal(text)))
         return text_res_iri
 
-    graph.add((doc_iri, RDF.type, MYONTO.Document))
+    graph.add((doc_iri, RDF.type, NLPG.Document))
     graph.add((doc_iri, RDFS.label, Literal(doc_label, datatype=XSD.string)))
     text_iri = generate_text_resource(text, doc_label)
-    graph.add((doc_iri, MYONTO.hasText, text_iri))
+    graph.add((doc_iri, NLPG.hasText, text_iri))
     return text_iri
 
 
@@ -96,13 +96,13 @@ def add_references(entities_json, text_res_iri, doc_name, graph):
         for item in references:
             if item['document'] == doc_name:
                 doc_label = item['document']
-                graph.add((text_res_iri, MYONTO.hasReferenceTo, URIRef(item['iri'])))
+                graph.add((text_res_iri, NLPG.hasReferenceTo, URIRef(item['iri'])))
                 reference = BNode(doc_label + '_text_ref_' + str(count))
-                graph.add((reference, RDF.type, MYONTO.StandOffLink))
-                graph.add((reference, MYONTO.linkTo, URIRef(item['iri'])))
-                graph.add((reference, MYONTO.startChar, Literal(item['start_char'], datatype=XSD.integer)))
-                graph.add((reference, MYONTO.endChar, Literal(item['end_char'], datatype=XSD.integer)))
-                graph.add((text_res_iri, MYONTO.hasStandoffMarkUp, reference))
+                graph.add((reference, RDF.type, NLPG.StandOffLink))
+                graph.add((reference, NLPG.linkTo, URIRef(item['iri'])))
+                graph.add((reference, NLPG.startChar, Literal(item['start_char'], datatype=XSD.integer)))
+                graph.add((reference, NLPG.endChar, Literal(item['end_char'], datatype=XSD.integer)))
+                graph.add((text_res_iri, NLPG.hasStandoffMarkUp, reference))
                 count += 1
     return graph
 
@@ -118,7 +118,7 @@ def create_document_resource(entities_json, inputs):
     document_graph.serialize(destination=graph_file, format='turtle')
 
 
-def create_resources_pipe(entities_json, inputs):
+def create_resources(entities_json, inputs):
     create_entity_resources(entities_path=entities_json,
                             project_name=inputs.project_name)
     create_document_resource(entities_json=entities_json,

@@ -4,7 +4,7 @@ from flair.models import SequenceTagger
 from flair.data import Sentence
 import os
 from Entitiy import GeoEntity, PersonEntity
-from pipes.preprocess_pipe import Input, preprocess_input
+from pipes.PreProcessor import Input, preprocess_input
 
 class SpacyNERParser:
     def __init__(self):
@@ -105,7 +105,7 @@ class FlairNERParser:
         return extracted_persons
 
 
-def ner_pipe(parser_type, inputs: Input):
+def parse_NE(parser_type, inputs: Input):
     if parser_type == 'flair':
         print('NER with flair')
         parser = FlairNERParser()
@@ -119,7 +119,7 @@ def ner_test(parser, inputs:  Input):
     def pretty_print(locations):
         return '\n'.join([str(d.text) + ' ' + str(d.label) for d in locations])
 
-    found_locations, found_persons = ner_pipe(parser, inputs)
+    found_locations, found_persons = parse_NE(parser, inputs)
     str_loc = pretty_print(found_locations)
     str_pers = pretty_print(found_persons)
     print("---English---\nLocations found:", len(found_locations))

@@ -1,8 +1,8 @@
-from pipes.NER_pipe import FlairNERParser
+from pipes.NamedEntityResognizer import FlairNERParser
 import os
 from flair.models import SequenceTagger
 from flair.data import Sentence
-from pipes.wiki_IR_pipe import add_wiki_info_person, add_wiki_info_location
+from pipes.WikiInformationRetriever import add_wiki_info_person, add_wiki_info_location
 
 # more models on hugging face https://huggingface.co/models?library=flair&sort=downloads
 

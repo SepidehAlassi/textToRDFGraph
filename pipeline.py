@@ -1,6 +1,6 @@
 from stage1 import stage1
 from stage2 import stage2
-from pipes.preprocess_pipe import preprocess_input
+from pipes.PreProcessor import preprocess_input
 import os
 import json
 import time

@@ -1,11 +1,11 @@
-from pipes.dep_parsing_pipe import parse_dependencies
-from pipes.postprocess_pipe import post_processing_pipe
-from pipes.pron_resolution_pipe import pronoun_resolution_pipe
+from pipes.DependencyParser import parse_dependencies
+from pipes.PostProcessor import post_process_graph
+from pipes.PronounResolver import process_anaphors
 
 import os
 import json
 from Entitiy import from_json
-from pipes.preprocess_pipe import Input
+from pipes.PreProcessor import Input
 
 
 def read_entities(entities_json):
@@ -23,10 +23,10 @@ def stage2(inputs, entities_json):
                                                     lang=inputs.lang, entities=entities)
 
     # Pronoun resolution pipe
-    pronoun_resolution_pipe(sentence_comps, pers_stack, lang=inputs.lang)
+    process_anaphors(sentence_comps, pers_stack, lang=inputs.lang)
 
     # Postprocessing the graph
-    post_processing_pipe(sentence_comps, inputs=inputs)
+    post_process_graph(sentence_comps, inputs=inputs)
     print('End of stage2')
 
 

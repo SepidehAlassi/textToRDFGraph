@@ -1,13 +1,13 @@
 from rdflib import Graph, URIRef
 from rdflib.namespace import Namespace
-from pipes.preprocess_pipe import Input
+from pipes.PreProcessor import Input
 import os
 import pandas as pd
 from nltk.corpus import wordnet
 
 # Add namespace
 DEFAULT = Namespace("http://www.NLPGraph.com/resource/")
-MYONTO = Namespace("http://www.NLPGraph.com/ontology/")
+NLPG = Namespace("http://www.NLPGraph.com/ontology/")
 
 
 def write_to_excel(tags_dict, project_name):
@@ -33,7 +33,7 @@ def add_new_edges(links_to_add, document_label, project_name):
     for link in links_to_add:
         graph.add((URIRef(link['subj_iri']), URIRef(link['prop_iri']), URIRef(link['obj_iri'])))
         star_statements += "<< <" + link['subj_iri'] + "> <" + link['prop_iri'] + "> <" + link[
-            'obj_iri'] + "> >> myOnto:mentionedIn <" + DEFAULT + document_label + "> .\n"
+            'obj_iri'] + "> >> nlpg:mentionedIn <" + DEFAULT + document_label + "> .\n"
     graph.serialize(destination=graph_file_path, format='turtle')
 
     with open(graph_file_path, 'a') as graph_file:
@@ -44,15 +44,15 @@ def extract_entity_relations(graph):
     link_props = """
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
         PREFIX owl:  <http://www.w3.org/2002/07/owl#> 
-        PREFIX myOnto:     <http://www.NLPGraph.com/ontology/>  
+        PREFIX nlpg:     <http://www.NLPGraph.com/ontology/>  
 
         SELECT ?prop ?prop_label
         WHERE {
             ?prop a owl:ObjectProperty .
             ?prop rdfs:domain ?domain_class .
-            ?domain_class rdfs:subClassOf myOnto:NamedEntity .    
+            ?domain_class rdfs:subClassOf nlpg:NamedEntity .    
             ?prop rdfs:range ?range_class .
-            ?range_class rdfs:subClassOf myOnto:NamedEntity . 
+            ?range_class rdfs:subClassOf nlpg:NamedEntity . 
             ?prop rdfs:label ?prop_label .
             FILTER ( lang(?prop_label) = "en" )
         }
@@ -64,7 +64,7 @@ def extract_entity_relations(graph):
     return extracted_relations
 
 
-def post_processing_pipe(sentences, inputs: Input):
+def post_process_graph(sentences, inputs: Input):
     # Output the extracted relations in Excel
     write_to_excel(sentences, inputs.project_name)
 

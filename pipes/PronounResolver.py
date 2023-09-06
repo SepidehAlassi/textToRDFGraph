@@ -4,7 +4,7 @@ gender_map = {'Masc': {'de': 'männlich', 'en': 'male'},
               'Fem': {'de': 'weiblich', 'en': 'female'}}
 
 
-def pronoun_resolution_pipe(sentence_comp, pers_stack, lang):
+def process_anaphors(sentence_comp, pers_stack, lang):
     for sent_num, sent_instances in sentence_comp.items():
         for sent_inst in sent_instances:
             comps = [sent_inst.subj, sent_inst.obj]

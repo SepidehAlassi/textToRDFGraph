@@ -28,7 +28,6 @@ class SpacyPosParser:
         self.object_tags = ['pobj', 'dobj', 'iobj', 'nk']
 
     def break_sentence(self, sent):
-
         subjects = [token for token in sent if token.dep_ in self.subject_tags]
         objects = [token for token in sent if token.dep_ in self.object_tags]
         found_sent_objects = []
@@ -94,10 +93,12 @@ def visualize_pos(doc, project_name):
 
 
 def parse_entities(entity_rels, entities, lang):
+    pers_labels = ['PERSON', 'PER']
+
     def get_entity(component, persons):
         if component.token.pos_ == 'PROPN':
             ent_type = component.token.ent_type_
-            if ent_type == 'PERSON' or ent_type == 'PER':
+            if ent_type in pers_labels:
                 for _, pers_items in entities['Persons'].items():
                     found_pers = [pers_item for pers_item in pers_items if
                                  pers_item.text == component.text and pers_item.language == lang]

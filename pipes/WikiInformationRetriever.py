@@ -3,7 +3,7 @@ import warnings
 import time
 
 
-def wiki_IR_pipe(found_locations, found_persons, existing_entities, document):
+def retrieve_wiki_infromation(found_locations, found_persons, existing_entities, document):
     location_entities = add_wiki_info_location(found_locations, document)
     existing_entities = unify_locations(location_entities, existing_entities)
     person_entities = add_wiki_info_person(found_persons, document)

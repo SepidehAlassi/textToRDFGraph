@@ -1,5 +1,5 @@
 import unittest
-from pipes.preprocess_pipe import detect_lang
+from pipes.PreProcessor import detect_lang
 
 
 class InputLanguageTest(unittest.TestCase):

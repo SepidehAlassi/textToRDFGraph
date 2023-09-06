@@ -1,24 +1,24 @@
 import os
 import json
 
-from pipes.create_resources_pipe import create_resources_pipe
+from pipes.ResourceCreator import create_resources
 from Entitiy import Entity
-from pipes.NER_pipe import ner_pipe
-from pipes.wiki_IR_pipe import wiki_IR_pipe
-from pipes.preprocess_pipe import preprocess_input
+from pipes.NamedEntityResognizer import parse_NE
+from pipes.WikiInformationRetriever import retrieve_wiki_infromation
+from pipes.PreProcessor import preprocess_input
 
 
 def stage1(parser, existing_entities, inputs):
 
-    found_locations, found_persons = ner_pipe(parser, inputs)
+    found_locations, found_persons = parse_NE(parser, inputs)
 
-    entities_dict = wiki_IR_pipe(found_locations, found_persons, existing_entities, inputs.doc_name)
+    entities_dict = retrieve_wiki_infromation(found_locations, found_persons, existing_entities, inputs.doc_name)
 
     json_path = os.path.join(inputs.project_name, inputs.project_name + '_entities.json')
     with open(json_path, "w") as output_json:
         output_json.write(json.dumps(entities_dict, default=Entity.toJson, indent=4, ensure_ascii=True))
-    create_resources_pipe(entities_json=json_path,
-                          inputs=inputs)
+    create_resources(entities_json=json_path,
+                     inputs=inputs)
 
 
 if __name__ == '__main__':

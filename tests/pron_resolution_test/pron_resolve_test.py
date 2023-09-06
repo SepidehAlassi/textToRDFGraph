@@ -1,8 +1,8 @@
 import unittest
-from pipes.pron_resolution_pipe import is_resolvable, resolve_pronoun
+from pipes.PronounResolver import is_resolvable, resolve_pronoun
 from Entitiy import PersonEntity
 from pipes.NLP_Parsers.spacyParser import SpacyParser
-from pipes.dep_parsing_pipe import SentenceComp
+from pipes.DependencyParser import SentenceComp
 import os
 from spacy import displacy
 
