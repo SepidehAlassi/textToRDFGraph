@@ -16,10 +16,11 @@ def parse_ontology(file):
 
 
 class Input:
-    def __init__(self, text_path, onto_path, project_name):
+    def __init__(self, text_path, onto_path, shacl_path, project_name):
         self.text, self.doc_name = read_text(text_path)
         self.lang = detect_lang(self.text)
         self.onto_graph = parse_ontology(onto_path)
+        self.shacl_file = shacl_path
         self.project_name = project_name
 
 
@@ -49,22 +50,23 @@ def read_text(text_path):
     return text, document_name
 
 
-def preprocess_input(text_path, onto_path, project_name):
+def preprocess_input(text_path, onto_path, shacl_path, project_name):
     """
     Preprocess the inputs of the pipeline into an object
     :param text_path: path to the input text
     :param onto_path: path to the input ontology
+    :param shacl_path: path to the input shacl file
     :param project_name: name of the project
     :return: Input object containing collection of pipeline's input data
     """
-    inputs = Input(text_path, onto_path, project_name)
+    inputs = Input(text_path, onto_path, shacl_path, project_name)
     return inputs
 
 
 if __name__ == '__main__':
     working_dir = os.getcwd()
     text_path = os.path.join(working_dir, 'inputs', 'test_data', 'dh2023', 'en_swiss.txt')
-    ontology_path = os.path.join(working_dir, 'inputs', 'ner_onto.ttl')
+    ontology_path = os.path.join(working_dir, 'inputs', 'nlpGraph_onto.ttl')
     project_name = 'dh2023'
     inputs = preprocess_input(text_path, ontology_path, project_name)
 

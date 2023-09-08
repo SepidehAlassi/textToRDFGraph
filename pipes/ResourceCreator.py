@@ -43,8 +43,8 @@ def add_resource_to_graph(entity_references, res_iri, ne_type, graph):
 
 def initialize_graph(graph_file):
     """
-    Initial construction of the output graph
-    :param graph_file: the path to the output file
+    Initial construction of an output graph
+    :param graph_file: the path to the output graph file
     :return: If there is a graph file for the project parse it otherwise make an empty graph with namespaces.
     """
     entities_graph = Graph()
@@ -168,6 +168,6 @@ def create_resources(entities_json, inputs):
 if __name__ == '__main__':
     entities_json = os.path.join(os.getcwd(), 'dh2023', 'dh2023_entities.json')
     test_input = Input(text_path=os.path.join(os.getcwd(), 'inputs', 'test_data', 'dh2023', 'fa_swiss.txt'),
-                       onto_path=os.path.join(os.getcwd(), 'inputs', 'ner_onto.ttl'),
+                       onto_path=os.path.join(os.getcwd(), 'inputs', 'nlpGraph_onto.ttl'),
                        project_name='dh2023')
     add_document_resource_to_graph(entities_json, test_input)

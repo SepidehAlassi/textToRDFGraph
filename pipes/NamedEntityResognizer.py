@@ -167,7 +167,7 @@ def ner_test(parser, inputs:  Input):
 
 if __name__ == '__main__':
     text_path = os.path.join(os.getcwd(), 'inputs', 'test_data', 'magellan_voyage', 'en_magellan_voyage.txt')
-    onto_path = os.path.join(os.getcwd(), 'inputs', 'ner_onto.ttl')
+    onto_path = os.path.join(os.getcwd(), 'inputs', 'nlpGraph_onto.ttl')
     project_name = 'test_ner'
     inputs = preprocess_input(text_path, onto_path, project_name)
     persons, locations = ner_test('spacy', inputs)

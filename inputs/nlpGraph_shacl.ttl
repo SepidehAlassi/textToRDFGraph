@@ -1,0 +1,68 @@
+@prefix xml:        <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd:        <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:       <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:        <http://www.w3.org/2002/07/owl#> .
+@prefix schema:     <https://schema.org/> .
+@prefix nlpg:     <http://www.NLPGraph.com/ontology/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+nlpg:PersonShape a sh:NodeShape  ;
+    sh:targetClass nlpg:Person ;
+    sh:property [
+        sh:path schema:givenName ;
+        sh:maxCount 3 ;
+        sh:languageIn ("en" "de" "fa") ;
+        sh:datatype xsd:string ;
+    ] ,
+    [
+        sh:path schema:familyName ;
+        sh:datatype xsd:string ;
+    ] ,
+    [
+        sh:path nlpg:gnd ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+    ] ,
+    [
+        sh:path owl:sameAs ;
+        sh:minCount 1 ;
+        sh:datatype xsd:anyURI ;
+    ] ,
+    [
+        sh:path nlpg:name ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:languageIn ("en" "de" "fa") ;
+    ] ,
+    [
+        sh:path nlpg:livedIn ;
+        sh:class nlpg:Location ;
+    ] ,
+    [
+        sh:path nlpg:bornIn ;
+        sh:class nlpg:Location ;
+    ] ,
+    [
+        sh:path nlpg:traveledTo ;
+        sh:class nlpg:Location ;
+    ] .
+
+nlpg:LocationShape a sh:NodeShape  ;
+    sh:targetClass nlpg:Location ;
+    sh:property [
+        sh:path nlpg:name ;
+        sh:minCount 1 ;
+        sh:languageIn ("en" "de" "fa") ;
+        sh:datatype xsd:string ;
+    ] ,
+    [
+        sh:path nlpg:geoName ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+    ] .
+
+
+

@@ -34,7 +34,7 @@ def stage2(inputs, entities_json):
 if __name__ == '__main__':
     entities_json = os.path.join(os.getcwd(), 'dh2023', 'dh2023_entities.json')
     test_input = Input(text_path=os.path.join(os.getcwd(), 'inputs', 'test_data', 'dh2023', 'en_swiss.txt'),
-                       onto_path=os.path.join(os.getcwd(), 'inputs', 'ner_onto.ttl'),
+                       onto_path=os.path.join(os.getcwd(), 'inputs', 'nlpGraph_onto.ttl'),
                        project_name='dh2023')
     stage2(inputs=test_input,
            entities_json=entities_json)

@@ -36,18 +36,18 @@ def retrieve_wiki_info_location(name, lang):
     longitude = ""
     latitude = ""
 
-    def make_location_wiki_query_sparql(lang, name):
+    def make_location_wiki_query_sparql(name, lang):
         sparql_statement = """
-        select ?place ?geonameID ?coordinate
-        where {""" + \
-                           '?place wdt:P625 ?coordinate .\n' \
-                           '?place rdfs:label "' + name.title() + '"@' + lang + "; \n" + \
-                           """wdt:P1566 ?geonameID .
+        select ?place ?geonameID ?coordinate \n
+        where {\n
+               ?place wdt:P625 ?coordinate .\n""" +\
+               '?place rdfs:label "' + name.title() + '"@' + lang + "; \n" + \
+                           """wdt:P1566 ?geonameID .\n
         }
         """
         return sparql_statement
 
-    sparl_statements = make_location_wiki_query_sparql(name, lang)
+    sparl_statements = make_location_wiki_query_sparql(name=name, lang=lang)
     results = make_wiki_query(sparl_statements)
     if len(results) == 0:
         msg = "No records found for location " + name + " in language " + lang + "."
@@ -79,12 +79,12 @@ def retrieve_wiki_info_person(name, lang):
     family_name = ""
     gender = ""
 
-    def make_wiki_person_query_sparql(lang, name):
+    def make_wiki_person_query_sparql(name, lang):
         sparql_statement = """
            SELECT ?person ?gnd ?givenNameLabel ?familyNameLabel ?gender_label
     WHERE {
       ?person wdt:P31 wd:Q5; \n""" + \
-                           'rdfs:label "' + name + '"@' + lang + "; \n" + \
+                           'rdfs:label "' + name.title() + '"@' + lang + "; \n" + \
                            """     wdt:P227 ?gnd ;
               wdt:P735 ?givenName ;
               wdt:P734 ?familyName ;
@@ -94,8 +94,8 @@ def retrieve_wiki_info_person(name, lang):
                            'SERVICE wikibase:label { bd:serviceParam wikibase:language "' + lang + '". }\n}'
         return sparql_statement
 
-    sparql_statement = make_wiki_person_query_sparql(lang, name)
-    results = make_wiki_query(lang, name, sparql_statement)
+    sparql_statement = make_wiki_person_query_sparql(name=name, lang=lang)
+    results = make_wiki_query(sparql_statement)
 
     if len(results) == 0:
         msg = "No records found for person " + name + " in language " + lang + "."

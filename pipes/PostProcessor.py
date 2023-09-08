@@ -1,6 +1,8 @@
 from rdflib import Graph, URIRef
 from rdflib.namespace import Namespace
 from pipes.PreProcessor import Input
+from pipes.ResourceCreator import initialize_graph
+from pyshacl import validate
 import os
 import pandas as pd
 from nltk.corpus import wordnet
@@ -47,8 +49,28 @@ def add_new_edges(links_to_add, document_label, project_name):
             'obj_iri'] + "> >> nlpg:mentionedIn <" + DEFAULT + document_label + "> .\n"
     graph.serialize(destination=graph_file_path, format='turtle')
 
-    with open(graph_file_path, 'a') as graph_file:
-        graph_file.write(star_statements)
+    star_graph_path = os.path.join(project_name, project_name + '_graph_metadata.ttl')
+    star_graph = initialize_graph(star_graph_path)
+    star_graph.serialize(destination=star_graph_path, format='turtle')
+    with open(star_graph_path, 'a') as star_graph_file:
+        star_graph_file.write(star_statements)
+
+
+def validate_graph(inputs: Input):
+    # read shapes graph from file
+    with open(inputs.shacl_file) as shape_file:
+        shapes = shape_file.read()
+    # read the data graph from file
+    with open(os.path.join(inputs.project_name, inputs.project_name + '_graph.ttl')) as data_file:
+        data = data_file.read()
+    conforms, v_graph, v_text = validate(data_graph=data,
+                                         shacl_graph=shapes,
+                                         data_graph_format='turtle',
+                                         shacl_graph_format='turtle',
+                                         inference="rdfs",
+                                         debug=True,
+                                         serialize_report_graph=True)
+    print(conforms)
 
 
 def extract_entity_relations(onto_graph):
@@ -96,6 +118,9 @@ def post_process_graph(sentence_comps, inputs: Input):
 
     # Enrich the graph with relations
     update_graph(sentence_comps, inputs, relation_props)
+
+    # Validate data graph
+    # validate_graph(inputs)
 
 
 def update_graph(sentence_comps, inputs: Input, relation_props):

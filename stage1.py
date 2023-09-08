@@ -24,7 +24,7 @@ def stage1(parser, existing_entities, inputs):
 if __name__ == '__main__':
     working_dir = os.getcwd()
     text_path = os.path.join(working_dir, 'inputs', 'test_data', 'magellan_voyage', 'en_magellan_voyage.txt')
-    ontology_path = os.path.join(working_dir, 'inputs', 'ner_onto.ttl')
+    ontology_path = os.path.join(working_dir, 'inputs', 'nlpGraph_onto.ttl')
     project_name = 'magellan'
     inputs = preprocess_input(text_path, ontology_path, project_name)
 
