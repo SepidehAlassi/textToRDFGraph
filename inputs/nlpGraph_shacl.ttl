@@ -12,7 +12,6 @@ nlpg:PersonShape a sh:NodeShape  ;
     sh:property [
         sh:path schema:givenName ;
         sh:maxCount 3 ;
-        sh:languageIn ("en" "de" "fa") ;
         sh:datatype xsd:string ;
     ] ,
     [
@@ -33,7 +32,6 @@ nlpg:PersonShape a sh:NodeShape  ;
     [
         sh:path nlpg:name ;
         sh:minCount 1 ;
-        sh:datatype xsd:string ;
         sh:languageIn ("en" "de" "fa") ;
     ] ,
     [
@@ -55,14 +53,17 @@ nlpg:LocationShape a sh:NodeShape  ;
         sh:path nlpg:name ;
         sh:minCount 1 ;
         sh:languageIn ("en" "de" "fa") ;
-        sh:datatype xsd:string ;
     ] ,
     [
         sh:path nlpg:geoName ;
         sh:minCount 1 ;
         sh:maxCount 1 ;
         sh:datatype xsd:string ;
+    ] ,
+    [
+        sh:path owl:sameAs ;
+        sh:minCount 1 ;
+        sh:datatype xsd:anyURI ;
     ] .
-
 
 
