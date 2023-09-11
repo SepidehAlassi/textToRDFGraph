@@ -1,0 +1,33 @@
+@prefix ex: <http://example.org/> .
+@prefix xsd:        <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:       <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:        <http://www.w3.org/2002/07/owl#> .
+@prefix schema:     <https://schema.org/> .
+@prefix nlpg:     <http://www.NLPGraph.com/ontology/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix wdt: <http://www.wikidata.org/prop/direct/> .
+
+ex:PersonShape a sh:NodeShape  ;
+    sh:targetClass ex:Person ;
+    sh:property
+    [
+        sh:path ex:livedIn ;
+        sh:class ex:Location ;
+    ] ,
+    [
+        sh:path ex:birthDate;
+        sh:datatye xsd:date ;
+    ] ,
+    [
+        sh:path ex:traveledTo ;
+        sh:class ex:Location ;
+    ] .
+
+ex:LocationShape a sh:NodeShape  ;
+    sh:targetClass ex:Location ;
+    sh:property
+    [
+        sh:path ex:population ;
+        sh:datatye xsd:double ;
+    ] .

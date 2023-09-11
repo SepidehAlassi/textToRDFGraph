@@ -11,9 +11,48 @@ def parse_ontology(file):
     :return: graph representing the ontology
     """
     graph = Graph()
-    graph.parse(file, format='ttl')
+    default_onto = os.path.join(os.getcwd(), 'nlpGraph_onto.ttl')
+    graph.parse(default_onto, format='ttl')
+    if file != '':
+        graph.parse(file, format='ttl')
     return graph
 
+def do_loc_extraction(graph):
+        """
+        Should location entities be extracted?
+        :param onto_graph: ontology graph
+        :return: True or false
+        """
+        sparql_statement = """
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
+            PREFIX nlpg:     <http://www.NLPGraph.com/ontology/>  
+
+            ASK {
+                ?class rdfs:subClassOf nlpg:Location .    
+            }
+        """
+
+        location_bool = graph.query(sparql_statement)['askAnswer']
+        return location_bool
+
+
+def do_pers_extraction(graph):
+    """
+    Should person entities be extracted?
+    :param onto_graph: ontology graph
+    :return: True or false
+    """
+    sparql_statement = """
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
+            PREFIX nlpg:     <http://www.NLPGraph.com/ontology/>  
+
+            ASK {
+                ?class rdfs:subClassOf nlpg:Person .    
+            }
+        """
+
+    perso_bool = graph.query(sparql_statement)['askAnswer']
+    return perso_bool
 
 class Input:
     def __init__(self, text_path, onto_path, shacl_path, project_name):
@@ -22,7 +61,8 @@ class Input:
         self.onto_graph = parse_ontology(onto_path)
         self.shacl_file = shacl_path
         self.project_name = project_name
-
+        self.do_location_extraction = do_loc_extraction(self.onto_graph)
+        self.do_person_extraction = do_pers_extraction(self.onto_graph)
 
 def detect_lang(text):
     """
@@ -50,7 +90,7 @@ def read_text(text_path):
     return text, document_name
 
 
-def preprocess_input(text_path, onto_path, shacl_path, project_name):
+def preprocess_input(text_path, onto_path='', shacl_path='', project_name='test'):
     """
     Preprocess the inputs of the pipeline into an object
     :param text_path: path to the input text
@@ -66,7 +106,8 @@ def preprocess_input(text_path, onto_path, shacl_path, project_name):
 if __name__ == '__main__':
     working_dir = os.getcwd()
     text_path = os.path.join(working_dir, 'inputs', 'test_data', 'dh2023', 'en_swiss.txt')
-    ontology_path = os.path.join(working_dir, 'inputs', 'nlpGraph_onto.ttl')
     project_name = 'dh2023'
-    inputs = preprocess_input(text_path, ontology_path, project_name)
+    inputs = preprocess_input(text_path=text_path, project_name=project_name)
+    result = do_pers_extraction(inputs.onto_graph)
+    print(result)
 

@@ -30,27 +30,15 @@ nlpg:PersonShape a sh:NodeShape  ;
         sh:datatype xsd:anyURI ;
     ] ,
     [
-        sh:path nlpg:name ;
+        sh:path schema:name ;
         sh:minCount 1 ;
         sh:languageIn ("en" "de" "fa") ;
-    ] ,
-    [
-        sh:path nlpg:livedIn ;
-        sh:class nlpg:Location ;
-    ] ,
-    [
-        sh:path nlpg:bornIn ;
-        sh:class nlpg:Location ;
-    ] ,
-    [
-        sh:path nlpg:traveledTo ;
-        sh:class nlpg:Location ;
     ] .
 
 nlpg:LocationShape a sh:NodeShape  ;
     sh:targetClass nlpg:Location ;
     sh:property [
-        sh:path nlpg:name ;
+        sh:path schema:name ;
         sh:minCount 1 ;
         sh:languageIn ("en" "de" "fa") ;
     ] ,

@@ -6,10 +6,13 @@ import json
 import time
 
 
-def pipeline(text_path, ontology_path, project_name):
+def pipeline(text_path, ontology_path='', shacl_path='', project_name='test'):
     parser_type = input('NER with spaCy or flair?').lower()
     entities_dict = {'Locations': {}, 'Persons': {}}
-    inputs = preprocess_input(text_path, ontology_path, project_name)
+    inputs = preprocess_input(text_path=text_path,
+                              onto_path=ontology_path,
+                              shacl_path=shacl_path,
+                              project_name=project_name)
     if inputs.lang == 'fa':
         parser_type = 'flair'
 
