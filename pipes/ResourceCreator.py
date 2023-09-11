@@ -3,6 +3,7 @@ import os
 from rdflib import Graph, Literal, URIRef, BNode
 from rdflib.namespace import XSD, Namespace, SDO, RDF, RDFS, OWL
 from pipes.PreProcessor import Input
+from langcodes import *
 
 # Add namespace
 DEFAULT = Namespace("http://www.NLPGraph.com/resource/")
@@ -91,12 +92,11 @@ def construct_graph_with_NEs(entities_path, project_name):
     entities_graph.serialize(destination=graph_file, format='turtle')
 
 
-def create_document_resource_wo_references(doc_iri, doc_label, text, graph):
+def create_document_resource_wo_references(doc_iri, inputs, graph):
     """
     Add a resource representing a text document to the graph without attaching the embedded text references.
     :param doc_iri: IRI of the document resource
-    :param doc_label: label of the document
-    :param text: text of the document
+    :param inputs: collection of pipeline's input data
     :param graph: output graph
     :return: IRI of the text content resource.
     """
@@ -107,8 +107,10 @@ def create_document_resource_wo_references(doc_iri, doc_label, text, graph):
         return text_res_iri
 
     graph.add((doc_iri, RDF.type, NLPG.Document))
-    graph.add((doc_iri, RDFS.label, Literal(doc_label, datatype=XSD.string)))
-    text_iri = generate_text_resource(text, doc_label)
+    graph.add((doc_iri, RDFS.label, Literal(inputs.doc_name, datatype=XSD.string)))
+    language_name = Language.make(language=inputs.lang).display_name()
+    graph.add((doc_iri, NLPG.hasLanguage, Literal(language_name, datatype=XSD.string)))
+    text_iri = generate_text_resource(inputs.text, inputs.doc_name)
     graph.add((doc_iri, NLPG.hasText, text_iri))
     return text_iri
 
@@ -137,7 +139,7 @@ def add_text_references(entities_json, text_res_iri, doc_name, graph):
                 graph.add((reference, NLPG.linkTo, URIRef(item['iri'])))
                 graph.add((reference, NLPG.startChar, Literal(item['start_char'], datatype=XSD.integer)))
                 graph.add((reference, NLPG.endChar, Literal(item['end_char'], datatype=XSD.integer)))
-                graph.add((text_res_iri, NLPG.hasStandoffMarkUp, reference))
+                graph.add((text_res_iri, NLPG.hasStandoffLink, reference))
                 count += 1
     return graph
 
@@ -152,7 +154,7 @@ def add_document_resource_to_graph(entities_json, inputs):
     document_graph = Graph()
     document_graph.parse(graph_file, format='ttl')
     doc_iri = URIRef(DEFAULT + inputs.doc_name)
-    text_iri = create_document_resource_wo_references(doc_iri, inputs.doc_name, inputs.text, graph=document_graph)
+    text_iri = create_document_resource_wo_references(doc_iri, inputs, graph=document_graph)
     document_graph = add_text_references(entities_json, text_iri, inputs.doc_name, graph=document_graph)
 
     document_graph.serialize(destination=graph_file, format='turtle')

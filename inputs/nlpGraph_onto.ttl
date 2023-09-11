@@ -95,16 +95,13 @@ nlpg:textContent rdf:type owl:DatatypeProperty ;
 nlpg:hasReferenceTo rdf:type owl:ObjectProperty ;
              rdfs:label  "has reference to"@en ;
              rdfs:comment "text reference to an entity."@en ;
-             rdfs:domain  nlpg:Text .
+             rdfs:domain  nlpg:Text ;
+             rdfs:range nlpg:NamedEntity .
 
-nlpg:hasStandoffMarkUp rdf:type owl:ObjectProperty ;
-             rdfs:label  "has standoff markup"@en ;
-             rdfs:comment "text markup as standoff."@en ;
+nlpg:hasStandoffLink rdf:type owl:ObjectProperty ;
+             rdfs:label  "has standoff link"@en ;
+             rdfs:comment "text has link to a standoff resource."@en ;
              rdfs:domain  nlpg:Text .
-
-nlpg:StandoffLink a owl:Class ;
-        rdfs:label "Standoff Link"@en ;
-        rdfs:comment "A resource representing a standoff link markup."@en .
 
 nlpg:startChar rdf:type owl:DatatypeProperty ;
              rdfs:label  "start character"@en ;

@@ -66,4 +66,40 @@ nlpg:LocationShape a sh:NodeShape  ;
         sh:datatype xsd:anyURI ;
     ] .
 
+nlpg:DocumentShape a sh:NodeShape  ;
+    sh:targetClass nlpg:Document ;
+    sh:property [
+        sh:path rdf:label ;
+        sh:minCount 1 ;
+    ] ,
+    [
+        sh:path nlpg:hasText ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:node nlpg:TextShape ;
+    ] ,
+    [
+        sh:path nlpg:hasLanguage ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ("English" "German" "Persian") ;
+        sh:severity sh:Violation ;
+        sh:message "Accepted languages for a document are English, German, and Persian" ;
+    ] .
 
+nlpg:TextShape a sh:NodeShape  ;
+    sh:targetClass nlpg:Text ;
+    sh:property [
+        sh:path nlpg:textContent ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+    ] ,
+    [
+        sh:path nlpg:hasReference ;
+        sh:class nlpg:NamedEntity ;
+    ] ,
+    [
+        sh:path nlpg:hasStandoffLink ;
+        sh:class nlpg:NamedEntity ;
+    ] .
