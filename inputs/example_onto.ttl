@@ -14,39 +14,28 @@
     rdf:type owl:Ontology ;
     rdfs:label "An example ontology" .
 
-ex:Location rdf:type owl:Class ;
-          rdfs:subClassOf nlpg:Location ;
-          rdfs:label "Location"@en ;
-          rdfs:comment "A Location"@en .
-
-
-ex:Person rdf:type owl:Class ;
-        rdfs:subClassOf nlpg:Person ;
-        rdfs:label "Person"@en ;
-        rdfs:comment "A resource representing a person."@en .
-
 ex:birthDate rdf:type   owl:DatatypeProperty ;
          rdfs:subPropertyOf wdt:P569 ;
          rdfs:label   "date of birth"@en ;
          rdfs:comment "date of birth of a person."@en ;
-         rdfs:domain  ex:Person ;
+         rdfs:domain  nlpg:Person ;
          rdfs:range   xsd:date .
 
 ex:livedIn rdf:type owl:ObjectProperty ;
          rdfs:label   "Lived in"@en ;
          rdfs:comment "Place of residence."@en ;
-         rdfs:domain  ex:Person ;
-         rdfs:range   ex:Location .
+         rdfs:domain  nlpg:Person ;
+         rdfs:range   nlpg:Location .
 
 ex:traveledTo  rdf:type owl:ObjectProperty ;
              rdfs:label  "Traveled to"@en ;
              rdfs:comment "Trip destination."@en ;
-             rdfs:domain  ex:Person ;
-             rdfs:range   ex:Location .
+             rdfs:domain  nlpg:Person ;
+             rdfs:range   nlpg:Location .
 
 ex:population rdf:type owl:DatatypeProperty ;
          rdfs:subPropertyOf wdt:P1082 ;
          rdfs:label   "Population"@en ;
          rdfs:comment "Population of a location."@en ;
-         rdfs:domain  ex:Location ;
+         rdfs:domain  nlpg:Location ;
          rdfs:range   xsd:double .

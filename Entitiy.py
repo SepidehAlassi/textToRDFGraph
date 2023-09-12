@@ -14,12 +14,10 @@ class Entity:
 
 
 class GeoEntity(Entity):
-    def __init__(self, text, label, start_char=0, end_char=0, wiki_id="", lang="en", iri='', document='', geoname_id="",
-                 lon=None, lat=None):
+    def __init__(self, text, label, start_char=0, end_char=0, wiki_id="", lang="en", iri='', document='',
+                 geoname_id=""):
         super().__init__(text, label, start_char, end_char, wiki_id, lang, iri, document)
         self.geoname_id = geoname_id  # GeoName ID of the location extracted from wikidata
-        self.longitude = lon  # Longitude of the location extracted from wikidata
-        self.latitude = lat  # Latitude of the location extracted from wikidata
 
 
 class PersonEntity(Entity):
@@ -45,10 +43,7 @@ def from_json(dct):
                                                       lang=loc['language'],
                                                       iri=loc['iri'],
                                                       document=loc['document'],
-                                                      geoname_id=loc['geoname_id'],
-                                                      lon=loc['longitude'],
-                                                      lat=loc['latitude']
-                                                      ))
+                                                      geoname_id=loc['geoname_id']))
 
     for pers_key, values in dct['Persons'].items():
         output['Persons'][pers_key] = []

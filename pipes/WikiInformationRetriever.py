@@ -33,20 +33,17 @@ def retrieve_wiki_info_location(name, lang):
     """
     wiki_id = ""
     geoname_id = ""
-    longitude = ""
-    latitude = ""
 
     def make_location_wiki_query_sparql(name, lang):
         sparql_statement = """
-        select ?place ?geonameID ?coordinate \n
-        where {\n
-               ?place wdt:P625 ?coordinate .\n""" +\
-               '?place rdfs:label "' + name.title() + '"@' + lang + "; \n" + \
+        select ?place ?geonameID \n
+        where {\n    
+               ?place rdfs:label """ + name.title() + '"@' + lang + "; \n" + \
                            """wdt:P1566 ?geonameID .\n
         }
         """
         return sparql_statement
-
+    # get_custom_predicates()
     sparl_statements = make_location_wiki_query_sparql(name=name, lang=lang)
     results = make_wiki_query(sparl_statements)
     if len(results) == 0:
@@ -141,12 +138,9 @@ def add_wiki_info_location(found_locations, document):
             same_item = same_loc[0]
             loc.wiki_id = same_item.wiki_id
             loc.geoname_id = same_item.geoname_id
-            loc.latitude = same_item.latitude
-            loc.longitude = same_item.longitude
             counter -= 1
         else:
-            loc.wiki_id, loc.geoname_id, loc.longitude, loc.latitude = retrieve_wiki_info_location(loc.text,
-                                                                                                   loc.language)
+            loc.wiki_id, loc.geoname_id = retrieve_wiki_info_location(loc.text, loc.language)
         if counter == 8:
             time.sleep(90)
             counter = 0

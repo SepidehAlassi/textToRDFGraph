@@ -58,7 +58,7 @@ def add_new_edges(links_to_add, document_label, project_name):
 
 def validate_graph(inputs: Input):
     # read shapes graph from file
-    with open(inputs.shacl_file) as shape_file:
+    with open(inputs.shacl_graph) as shape_file:
         shapes = shape_file.read()
     # read the data graph from file
     with open(os.path.join(inputs.project_name, inputs.project_name + '_graph.ttl')) as data_file:

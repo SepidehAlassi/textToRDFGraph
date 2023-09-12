@@ -8,26 +8,37 @@
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix wdt: <http://www.wikidata.org/prop/direct/> .
 
-ex:PersonShape a sh:NodeShape  ;
-    sh:targetClass ex:Person ;
-    sh:property
-    [
-        sh:path ex:livedIn ;
-        sh:class ex:Location ;
-    ] ,
-    [
-        sh:path ex:birthDate;
-        sh:datatye xsd:date ;
-    ] ,
-    [
-        sh:path ex:traveledTo ;
-        sh:class ex:Location ;
-    ] .
+ex:BirthDateShape
+	a sh:PropertyShape ;
+	sh:path ex:birthDate;
+	sh:message "We need at least one birth date value for a person" ;
+    sh:severity sh:Violation ;
+	sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:targetClass nlpg:Person.
 
-ex:LocationShape a sh:NodeShape  ;
-    sh:targetClass ex:Location ;
-    sh:property
-    [
-        sh:path ex:population ;
-        sh:datatye xsd:double ;
-    ] .
+ex:LivedInShape
+	a sh:PropertyShape ;
+	sh:path ex:livedIn;
+	sh:message "No place of residence found for the person." ;
+    sh:severity sh:Warning ;
+    sh:class nlpg:Location ;
+    sh:targetClass nlpg:Person.
+
+ex:TraveledToShape
+	a sh:PropertyShape ;
+	sh:path ex:traveledTo;
+	sh:message "No travel destinations found for the person." ;
+    sh:severity sh:Warning ;
+    sh:class nlpg:Location ;
+    sh:targetClass nlpg:Person.
+
+
+ex:PopulationShape
+	a sh:PropertyShape ;
+	sh:path ex:population;
+	sh:message "No population is given for the location." ;
+    sh:severity sh:Violation ;
+	sh:minCount 1 ;
+    sh:datatype xsd:double ;
+    sh:targetClass nlpg:Location.
