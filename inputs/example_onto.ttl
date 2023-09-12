@@ -21,6 +21,13 @@ ex:birthDate rdf:type   owl:DatatypeProperty ;
          rdfs:domain  nlpg:Person ;
          rdfs:range   xsd:date .
 
+ex:deathDate rdf:type   owl:DatatypeProperty ;
+         rdfs:subPropertyOf wdt:P570 ;
+         rdfs:label   "date of death"@en ;
+         rdfs:comment "date of death of a person."@en ;
+         rdfs:domain  nlpg:Person ;
+         rdfs:range   xsd:date .
+
 ex:livedIn rdf:type owl:ObjectProperty ;
          rdfs:label   "Lived in"@en ;
          rdfs:comment "Place of residence."@en ;

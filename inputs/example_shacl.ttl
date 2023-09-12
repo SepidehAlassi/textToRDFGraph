@@ -14,7 +14,16 @@ ex:BirthDateShape
 	sh:message "We need at least one birth date value for a person" ;
     sh:severity sh:Violation ;
 	sh:minCount 1 ;
-    sh:datatype xsd:string ;
+    sh:datatype xsd:date ;
+    sh:targetClass nlpg:Person.
+
+ex:DeathDateShape
+	a sh:PropertyShape ;
+	sh:path ex:deathDate;
+	sh:message "More than one death date given for a person." ;
+	sh:maxCount 1 ;
+    sh:severity sh:Violation ;
+    sh:datatype xsd:date ;
     sh:targetClass nlpg:Person.
 
 ex:LivedInShape

@@ -12,7 +12,7 @@ def stage1(parser, existing_entities, inputs):
 
     found_locations, found_persons = parse_NE(parser, inputs)
 
-    entities_dict = retrieve_wiki_infromation(found_locations, found_persons, existing_entities, inputs.doc_name)
+    entities_dict = retrieve_wiki_infromation(found_locations, found_persons, existing_entities, inputs)
 
     json_path = os.path.join(inputs.project_name, inputs.project_name + '_entities.json')
     with open(json_path, "w") as output_json:

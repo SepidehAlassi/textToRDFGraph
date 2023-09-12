@@ -62,7 +62,7 @@ ex:BirthDateShape
 	sh:message "We need at least one birth date value for a person" ;
     sh:severity sh:Violation ;
 	sh:minCount 1 ;
-    sh:datatype xsd:string ;
+    sh:datatype xsd:date ;
     sh:targetClass nlpg:Person.
 ```
 2. Property shapes to validate the object properties that represent relation between named entities.

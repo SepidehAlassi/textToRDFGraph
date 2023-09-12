@@ -37,6 +37,7 @@ nlpg:Location rdf:type owl:Class ;
           rdfs:comment "A Location"@en .
 
 nlpg:geoName rdf:type owl:DatatypeProperty ;
+         rdfs:subPropertyOf wdt:P1566 ;
          rdfs:label "GeoName"@de ,
                     "GeoName"@en ;
          rdfs:domain nlpg:Location ;
@@ -48,6 +49,7 @@ nlpg:Person rdf:type owl:Class ;
         rdfs:comment "A resource representing a person."@en .
 
 nlpg:gnd rdf:type  owl:DatatypeProperty ;
+        rdfs:subPropertyOf wdt:P227 ;
         rdfs:label "Gemeinsame Normdatei (GND)"@de,
                    "Integrated Authority File"@en ;
         rdfs:comment "Repräsentiert eine GND-Nummer."@de,
