@@ -35,7 +35,7 @@ def flair_ner_test(text, lang, document):
     parser = FlairNERParser()
     _, locations, persons = parser.extract_ne(text, lang)
     found_persons = add_wiki_info_person(persons, document)
-    found_locations = add_wiki_info_location(locations, document)
+    found_locations, _ = add_wiki_info_location(locations, document)
 
     locs_dict = {}
     for loc in found_locations:

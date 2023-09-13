@@ -10,7 +10,7 @@ def parse_ontology(file):
     :return: graph representing the ontology
     """
     graph = Graph()
-    default_onto = os.path.join('..','..', 'nlpGraph_onto.ttl')
+    default_onto = os.path.join(os.path.dirname(__file__), '..', 'nlpGraph_onto.ttl')
     graph.parse(default_onto, format='ttl')
     if file != '':
         graph.parse(file, format='ttl')
@@ -24,7 +24,7 @@ def parse_shacl(file):
     :return: shapes graph
     """
     graph = Graph()
-    default_shacl = os.path.join('..', '..', 'nlpGraph_shacl.ttl')
+    default_shacl = os.path.join(os.path.dirname(__file__), '..', 'nlpGraph_shacl.ttl')
     graph.parse(default_shacl, format='ttl')
     if file != '':
         graph.parse(file, format='ttl')
@@ -32,7 +32,7 @@ def parse_shacl(file):
 
 
 class Input:
-    def __init__(self, text_path, onto_path, shacl_path, project_name):
+    def __init__(self, text_path, onto_path='', shacl_path='', project_name='test'):
         self.text, self.doc_name = read_text(text_path)
         self.lang = detect_lang(self.text)
         self.onto_graph = parse_ontology(onto_path)
@@ -84,5 +84,4 @@ if __name__ == '__main__':
     text_path = os.path.join(working_dir, 'inputs', 'test_data', 'dh2023', 'en_swiss.txt')
     project_name = 'dh2023'
     inputs = preprocess_input(text_path=text_path, project_name=project_name)
-    result = do_pers_extraction(inputs.onto_graph)
-    print(result)
+

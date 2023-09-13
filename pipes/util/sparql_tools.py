@@ -1,3 +1,6 @@
+import rdflib
+
+
 def find_wiki_props_statement(entity_type: str) -> str:
     sparql_statement = """
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
@@ -11,6 +14,16 @@ def find_wiki_props_statement(entity_type: str) -> str:
             """
     return sparql_statement
 
+def find_prop_range_statement(prop_iri: rdflib.URIRef) -> str:
+    sparql_statement = """
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
+            
+            SELECT ?range {
+                BIND(""" + prop_iri.n3() +""" AS ?prop)
+                ?prop rdfs:range ?range .
+            }
+            """
+    return sparql_statement
 
 def make_wiki_location_query_sparql(name: str, lang: str, wiki_props={}) -> str:
     variables = "?place"
@@ -18,7 +31,7 @@ def make_wiki_location_query_sparql(name: str, lang: str, wiki_props={}) -> str:
         key_var = " ?" + key + "Label"
         variables += key_var
     select_block = "SELECT " + variables + '\n'
-    where_block = """WHERE {\n\t?place rdfs:label '""" + name.title() + "'@" + lang + " . \n"
+    where_block = "WHERE {\n\t{?place rdfs:label '" + name + "'@" + lang + " . }\n\tUNION\n\t{?place rdfs:label '" + name.title() + "'@" + lang + " . } \n"
     for key, prop_val in wiki_props.items():
         where_block += "\t?place " + prop_val['wikidata'] + " ?" + key + " .\n"
     where_block += '\tSERVICE wikibase:label { bd:serviceParam wikibase:language "' + lang + '". }\n}'
@@ -32,8 +45,8 @@ def make_wiki_person_query_sparql(name: str, lang: str, wiki_props={}) -> str:
         key_var = " ?" + key + "Label"
         variables += key_var
     select_block = "SELECT" + variables + '\n'
-    where_block = """WHERE {\n?person wdt:P31 wd:Q5 ; \n""" + \
-                  '\t\t rdfs:label "' + name.title() + '"@' + lang + " . \n"
+    where_block = "WHERE {\n\t?person wdt:P31 wd:Q5 . \n" + \
+                  "\t{?person rdfs:label '" + name + "'@" + lang + " . }\n\tUNION \n\t{?person rdfs:label '" + name.title() + "'@" + lang + " . }\n"
     for key, prop_val in wiki_props.items():
         where_block += "\t?person " + prop_val['wikidata'] + " ?" + key + " .\n"
     where_block += '\tSERVICE wikibase:label { bd:serviceParam wikibase:language "' + lang + '". }\n}'

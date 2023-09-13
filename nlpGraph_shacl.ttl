@@ -7,57 +7,56 @@
 @prefix nlpg:     <http://www.NLPGraph.com/ontology/> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 
-nlpg:PersonShape a sh:NodeShape  ;
-    sh:targetClass nlpg:Person ;
-    sh:property [
-        sh:path nlpg:givenName ;
-        sh:maxCount 3 ;
-        sh:datatype xsd:string ;
-    ] ,
-    [
-        sh:path nlpg:familyName ;
-        sh:datatype xsd:string ;
-    ] ,
-    [
-        sh:path nlpg:gnd ;
-        sh:minCount 1 ;
-        sh:maxCount 1 ;
-        sh:datatype xsd:string ;
-    ] ,
-    [
-        sh:path owl:sameAs ;
-        sh:minCount 1 ;
-        sh:datatype xsd:anyURI ;
-    ] ,
-    [
-        sh:path schema:name ;
-        sh:minCount 1 ;
-        sh:languageIn ("en" "de" "fa") ;
-    ] .
+nlpg:GivenNameShape
+	a sh:PropertyShape ;
+	sh:path nlpg:givenName;
+    sh:datatype xsd:string ;
+    sh:targetClass nlpg:Person.
 
-nlpg:LocationShape a sh:NodeShape  ;
-    sh:targetClass nlpg:Location ;
-    sh:property [
-        sh:path schema:name ;
-        sh:minCount 1 ;
-        sh:languageIn ("en" "de" "fa") ;
-    ] ,
-    [
-        sh:path nlpg:geoNameID ;
-        sh:minCount 1 ;
-        sh:maxCount 1 ;
-        sh:datatype xsd:string ;
-    ] ,
-    [
-        sh:path owl:sameAs ;
-        sh:minCount 1 ;
-        sh:datatype xsd:anyURI ;
-    ] .
+nlpg:FamilyNameShape
+	a sh:PropertyShape ;
+	sh:path nlpg:familyName;
+    sh:datatype xsd:string ;
+    sh:targetClass nlpg:Person.
+
+nlpg:GNDShape
+	a sh:PropertyShape ;
+	sh:path nlpg:gnd;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:targetClass nlpg:Person.
+
+nlpg:GenderShape
+	a sh:PropertyShape ;
+	sh:path nlpg:gender;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:in ('male' 'female') ;
+    sh:targetClass nlpg:Person.
+
+nlpg:WikiIRIShape
+	a sh:PropertyShape ;
+	sh:path owl:sameAs;
+    sh:minCount 1 ;
+    sh:datatype xsd:anyURI .
+
+nlpg:NameShape
+	a sh:PropertyShape ;
+	sh:path schema:name;
+    sh:minCount 1 ;
+    sh:languageIn ("en" "de" "fa") .
+
+nlpg:geoNameIDShape
+	a sh:PropertyShape ;
+	sh:path nlpg:geoNameID;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string  .
 
 nlpg:DocumentShape a sh:NodeShape  ;
     sh:targetClass nlpg:Document ;
     sh:property [
-        sh:path rdf:label ;
+        sh:path rdfs:label ;
         sh:minCount 1 ;
     ] ,
     [

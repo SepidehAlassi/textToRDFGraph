@@ -9,9 +9,6 @@ class Entity:
         self.iri = iri
         self.document = document
 
-    def toJson(instance):  # get a class instance
-        return instance.__dict__  # convert it to dictionary and return
-
 
 class GeoEntity(Entity):
     def __init__(self, text, label, start_char=0, end_char=0, wiki_id="", lang="en", iri='', document='',

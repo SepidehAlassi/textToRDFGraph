@@ -5,7 +5,6 @@
 @prefix owl:        <http://www.w3.org/2002/07/owl#> .
 @prefix schema:     <https://schema.org/> .
 @prefix nlpg:     <http://www.NLPGraph.com/ontology/> .
-@prefix wdt: <http://www.wikidata.org/prop/direct/> .
 
 # The NLP Graph Ontology
 

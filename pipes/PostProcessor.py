@@ -32,25 +32,24 @@ def write_to_excel(sent_comps, project_name):
         pos_info.to_excel(writer, sheet_name='POS info')
 
 
-def add_new_edges(links_to_add, document_label, project_name):
+def add_new_edges(links_to_add, inputs:Input):
     """
     Add new edges to the graph that represent links between two named entities.
     :param links_to_add: new edges to be added to the graph
-    :param document_label: the document that is the source of the extracted links
-    :param project_name: the name of the input project
+    :param inputs: collection of input items
     """
     graph = Graph()
-    graph_file_path = os.path.join(project_name, project_name + '_graph.ttl')
+    graph_file_path = os.path.join(inputs.project_name, inputs.project_name + '_graph.ttl')
     graph.parse(graph_file_path, format='ttl')
     star_statements = ""
     for link in links_to_add:
         graph.add((URIRef(link['subj_iri']), URIRef(link['prop_iri']), URIRef(link['obj_iri'])))
         star_statements += "<< <" + link['subj_iri'] + "> <" + link['prop_iri'] + "> <" + link[
-            'obj_iri'] + "> >> nlpg:mentionedIn <" + DEFAULT + document_label + "> .\n"
+            'obj_iri'] + "> >> nlpg:mentionedIn <" + DEFAULT + inputs.doc_name + "> .\n"
     graph.serialize(destination=graph_file_path, format='turtle')
 
-    star_graph_path = os.path.join(project_name, project_name + '_graph_metadata.ttl')
-    star_graph = initialize_graph(star_graph_path)
+    star_graph_path = os.path.join(inputs.project_name, inputs.project_name + '_graph_metadata.ttl')
+    star_graph = initialize_graph(star_graph_path, onto_graph=inputs.onto_graph)
     star_graph.serialize(destination=star_graph_path, format='turtle')
     with open(star_graph_path, 'a') as star_graph_file:
         star_graph_file.write(star_statements)
@@ -144,7 +143,7 @@ def update_graph(sentence_comps, inputs: Input, relation_props):
                     continue
                 object_iri = obj.entity.iri
                 links_to_add.append({'subj_iri': subject_iri, 'prop_iri': predicate, 'obj_iri': object_iri})
-    add_new_edges(links_to_add, inputs.doc_name, inputs.project_name)
+    add_new_edges(links_to_add, inputs)
 
 
 def is_valid_edge(verb, onto_relation_props):

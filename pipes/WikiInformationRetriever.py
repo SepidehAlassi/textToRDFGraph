@@ -17,11 +17,11 @@ def retrieve_wiki_info(found_locations, found_persons, existing_entities, inputs
     :param inputs: collection of the inputs of the pipeline
     :return: updated collection of extracted named entities
     """
-    location_entities = add_wiki_info_location(found_locations, inputs)
+    location_entities, wiki_props_loc = add_wiki_info_location(found_locations, inputs)
     existing_entities = unify_locations(location_entities, existing_entities)
-    person_entities = add_wiki_info_person(found_persons, inputs)
+    person_entities, wiki_props_pers = add_wiki_info_person(found_persons, inputs)
     existing_entities = unify_persons(person_entities, existing_entities)
-    return existing_entities
+    return existing_entities, {**wiki_props_loc, **wiki_props_pers}
 
 
 def get_required_wiki_props_from_ontology(graph, entity_type="Person"):
@@ -68,7 +68,7 @@ def retrieve_wiki_info_location(name, lang, onto_graph):
             else:
                 wiki_info[key.replace('Label', "")] = record[key]['value']
 
-    return wiki_info
+    return wiki_info, wiki_props
 
 
 def retrieve_wiki_info_person(name: str, lang: str, onto_graph: rdflib.Graph) -> {}:
@@ -100,7 +100,7 @@ def retrieve_wiki_info_person(name: str, lang: str, onto_graph: rdflib.Graph) ->
             else:
                 wiki_info[key.replace('Label', "")] = record[key]['value']
 
-    return wiki_info
+    return wiki_info, wiki_props
 
 
 def make_wiki_query(sparql_statement):
@@ -109,8 +109,14 @@ def make_wiki_query(sparql_statement):
     :param sparql_statement: SPARQL query as string
     :return: query results
     """
-    res = return_sparql_query_results(sparql_statement)
-    results = res["results"]["bindings"]
+    results = {}
+    try:
+        res = return_sparql_query_results(sparql_statement)
+        results = res["results"]["bindings"]
+    except:
+
+        print(sparql_statement)
+
     return results
 
 
@@ -132,7 +138,7 @@ def add_wiki_info_location(found_locations, inputs: Input):
                     setattr(loc, attrib, val)
             counter -= 1
         else:
-            wiki_info = retrieve_wiki_info_location(loc.text, loc.language, inputs.graph)
+            wiki_info, wiki_props = retrieve_wiki_info_location(loc.text, loc.language, inputs.onto_graph)
             for key, val in wiki_info.items():
                 setattr(loc, key, val)
         if counter == 8:
@@ -140,7 +146,7 @@ def add_wiki_info_location(found_locations, inputs: Input):
             counter = 0
         else:
             counter += 1
-    return found_locations
+    return found_locations, wiki_props
 
 
 def add_wiki_info_person(found_persons, inputs: Input):
@@ -161,7 +167,7 @@ def add_wiki_info_person(found_persons, inputs: Input):
                     setattr(pers, attrib, val)
             counter -= 1
         else:
-            wiki_info = retrieve_wiki_info_person(name=pers.text,
+            wiki_info, wiki_props = retrieve_wiki_info_person(name=pers.text,
                                                   lang=pers.language,
                                                   onto_graph=inputs.onto_graph)
             for key, val in wiki_info.items():
@@ -171,7 +177,7 @@ def add_wiki_info_person(found_persons, inputs: Input):
             counter = 0
         else:
             counter += 1
-    return found_persons
+    return found_persons, wiki_props
 
 
 def unify_locations(found_locations, entities_dict):
@@ -209,7 +215,7 @@ def unify_persons(found_persons, entities_dict):
 
 
 if __name__ == '__main__':
-    # print(get_wiki_record_location("koblenz", "en"))
     graph = rdflib.Graph()
     graph.parse(os.path.join('..', 'nlpGraph_onto.ttl'), format='turtle')
-    print(retrieve_wiki_info_person("Jacob Bernoulli", "en", graph))
+    wiki_info, wiki_props = retrieve_wiki_info_person("Jacob Bernoulli", "en", graph)
+    print(wiki_info)

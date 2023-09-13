@@ -1,10 +1,23 @@
-from pipes.util.NLP_Parser import SpacyParser
+from pipes.util.NLP_Parser.spacyParser import SpacyParser
 from spacy import displacy
 from flair.models import SequenceTagger
 from flair.data import Sentence
 import os
 from Entitiy import GeoEntity, PersonEntity
 from pipes.PreProcessor import Input, preprocess_input
+
+articles_to_strip = ('der ', 'die ', 'das ', 'the ')
+
+
+def sanitize_entity(text, start_char, end_char, lang):
+    if lang == 'fa':
+        text = text.strip('،')
+        end_char = end_char - 1
+    else:
+        text = text[4:]
+        start_char = start_char + 4
+    return text, start_char, end_char
+
 
 class SpacyNERParser:
     def __init__(self):
@@ -22,7 +35,12 @@ class SpacyNERParser:
         person_entities = list(filter(lambda ent: ent.label_ in self.personLabels, entities))
 
         for ent in person_entities:
-            entity = PersonEntity(text=ent.text, label=ent.label_, start_char=ent.start_char, end_char=ent.end_char,
+            text = ent.text
+            end_char = ent.end_char
+            start_char = ent.start_char
+            if text.startswith(articles_to_strip) or lang == 'fa':
+                text, start_char, end_char = sanitize_entity(text=text, end_char=end_char, start_char=start_char, lang=lang)
+            entity = PersonEntity(text=text, label=ent.label_, start_char=start_char, end_char=end_char,
                                   lang=lang)
             found_persons.append(entity)
 
@@ -39,7 +57,14 @@ class SpacyNERParser:
         geo_entities = list(filter(lambda ent: ent.label_ in self.locationLabels, entities))
 
         for ent in geo_entities:
-            entity = GeoEntity(text=ent.text, label=ent.label_, start_char=ent.start_char, end_char=ent.end_char,
+            text = ent.text
+            end_char = ent.end_char
+            start_char = ent.start_char
+            if text.startswith(articles_to_strip) or lang == 'fa':
+                text, start_char, end_char = sanitize_entity(text=text, end_char=end_char, start_char=start_char,
+                                                             lang=lang)
+
+            entity = GeoEntity(text=text, label=ent.label_, start_char=start_char, end_char=end_char,
                                lang=lang)
             found_locations.append(entity)
 
@@ -100,17 +125,20 @@ class FlairNERParser:
         :return: location entities
         """
         extracted_locations = []
+
         for entity in entities:
             tag = entity.get_label('ner')
 
             if tag.value == self.location_label:
-                if lang == 'fa':
-                    text = entity.text.strip('،')
-                else:
-                    text = entity.text
+                text = entity.text
+                end_char = entity.end_position
+                start_char = entity.start_position
+                if text.startswith(articles_to_strip) or lang == 'fa':
+                    text, start_char, end_char = sanitize_entity(text=text, end_char=end_char, start_char=start_char,
+                                                                 lang=lang)
 
-                loc_entity = GeoEntity(text=text, label=tag.value, start_char=entity.start_position,
-                                       end_char=entity.end_position, lang=lang)
+                loc_entity = GeoEntity(text=text, label=tag.value, start_char=start_char,
+                                       end_char=end_char, lang=lang)
                 extracted_locations.append(loc_entity)
 
         return extracted_locations
@@ -127,9 +155,15 @@ class FlairNERParser:
             tag = entity.get_label('ner')
 
             if tag.value == self.person_label:
-                pers_entity = PersonEntity(text=entity.text, label=tag.value,
-                                           start_char=entity.start_position,
-                                           end_char=entity.end_position,
+                text = entity.text
+                end_char = entity.end_position
+                start_char = entity.start_position
+                if text.startswith(articles_to_strip) or lang == 'fa':
+                    text, start_char, end_char = sanitize_entity(text=text, end_char=end_char, start_char=start_char,
+                                                                 lang=lang)
+                pers_entity = PersonEntity(text=text, label=tag.value,
+                                           start_char=start_char,
+                                           end_char=end_char,
                                            lang=lang)
                 extracted_persons.append(pers_entity)
         return extracted_persons
@@ -151,7 +185,7 @@ def parse_NE(parser_type, inputs: Input):
     return parser.extract_ne(inputs)
 
 
-def ner_test(parser, inputs:  Input):
+def ner_test(parser, inputs: Input):
     def pretty_print(locations):
         return '\n'.join([str(d.text) + ' ' + str(d.label) for d in locations])
 
@@ -166,10 +200,9 @@ def ner_test(parser, inputs:  Input):
 
 
 if __name__ == '__main__':
-    text_path = os.path.join(os.getcwd(), 'inputs', 'test_data', 'magellan_voyage', 'en_magellan_voyage.txt')
-    onto_path = os.path.join(os.getcwd(), 'inputs', 'nlpGraph_onto.ttl')
-    project_name = 'test_ner'
-    inputs = preprocess_input(text_path, onto_path, project_name)
+    text_path = os.path.join(os.path.dirname(__file__), '..',  'inputs', 'test_data', 'magellan_voyage', 'en_magellan_voyage.txt')
+    project_name = 'magellan'
+    inputs = preprocess_input(text_path=text_path, project_name=project_name)
     persons, locations = ner_test('spacy', inputs)
     unique_pers = set([pers.text for pers in persons])
     unique_locs = set([loc.text for loc in locations])

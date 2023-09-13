@@ -5,7 +5,7 @@ import rdflib.term
 
 from pipes.PreProcessor import parse_ontology
 
-test_onto_path = os.path.join('..', '..', 'inputs', 'example_onto.ttl')
+test_onto_path = os.path.join(os.path.dirname(__file__), '..', '..', 'inputs', 'example_onto.ttl')
 graph = parse_ontology(test_onto_path)
 namespaces = dict(graph.namespaces())
 
@@ -59,7 +59,7 @@ class CustomOntoTest(unittest.TestCase):
 
     def test_location_query(self):
         wiki_props = get_required_wiki_props_from_ontology(graph, "Location")
-        sparql_statement = make_wiki_location_query_sparql(name="Basel", lang="de", wiki_props=wiki_props)
+        sparql_statement = make_wiki_location_query_sparql(name="Strait of Magellan", lang="en", wiki_props=wiki_props)
         self.assertTrue(len(sparql_statement) != 0)
 
 
