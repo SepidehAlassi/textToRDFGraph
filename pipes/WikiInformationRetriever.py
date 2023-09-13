@@ -1,6 +1,7 @@
 import rdflib
 from qwikidata.sparql import return_sparql_query_results
 from pipes.PreProcessor import Input
+from pipes.util.sparql_tools import *
 import time
 import os
 
@@ -25,16 +26,7 @@ def retrieve_wiki_info(found_locations, found_persons, existing_entities, inputs
 
 def get_required_wiki_props_from_ontology(graph, entity_type="Person"):
     namespaces = dict(graph.namespaces())
-    sparql_statement = """
-            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
-            PREFIX nlpg:     <http://www.NLPGraph.com/ontology/>  
-            PREFIX owl: <http://www.w3.org/2002/07/owl#> 
-            SELECT ?prop ?wikiProp {
-                ?prop rdfs:subPropertyOf ?wikiProp ; """ + \
-                       "rdfs:domain nlpg:" + entity_type + """ .\n   
-                FILTER (strstarts(str(?wikiProp), 'http://www.wikidata.org/prop/direct/'))
-            }
-            """
+    sparql_statement = find_wiki_props_statement(entity_type)
     query_result = graph.query(sparql_statement)
     props = {}
     wdt_namespace = namespaces.get('wdt')
@@ -44,20 +36,6 @@ def get_required_wiki_props_from_ontology(graph, entity_type="Person"):
         props[prop_label] = {'wikidata': 'wdt:' + str(row.wikiProp).strip(wdt_namespace),
                              'prop_QName': prop_Qname}
     return props
-
-
-def make_wiki_location_query_sparql(name: str, lang: str, wiki_props={}) -> {}:
-    variables = "?place"
-    for key in wiki_props.keys():
-        key_var = " ?" + key + "Label"
-        variables += key_var
-    select_block = "SELECT " + variables + '\n'
-    where_block = """WHERE {\n\t?place rdfs:label '""" + name.title() + "'@" + lang + " . \n"
-    for key, prop_val in wiki_props.items():
-        where_block += "\t?place " + prop_val['wikidata'] + " ?" + key + " .\n"
-    where_block += '\tSERVICE wikibase:label { bd:serviceParam wikibase:language "' + lang + '". }\n}'
-    sparql_statement = select_block + where_block
-    return sparql_statement
 
 
 def retrieve_wiki_info_location(name, lang, onto_graph):
@@ -91,21 +69,6 @@ def retrieve_wiki_info_location(name, lang, onto_graph):
                 wiki_info[key.replace('Label', "")] = record[key]['value']
 
     return wiki_info
-
-
-def make_wiki_person_query_sparql(name, lang, wiki_props={}):
-    variables = " ?person"
-    for key in wiki_props.keys():
-        key_var = " ?" + key + "Label"
-        variables += key_var
-    select_block = "SELECT" + variables + '\n'
-    where_block = """WHERE {\n?person wdt:P31 wd:Q5 ; \n""" + \
-                  '\t\t rdfs:label "' + name.title() + '"@' + lang + " . \n"
-    for key, prop_val in wiki_props.items():
-        where_block += "\t?person " + prop_val['wikidata'] + " ?" + key + " .\n"
-    where_block += '\tSERVICE wikibase:label { bd:serviceParam wikibase:language "' + lang + '". }\n}'
-    sparql_statement = select_block + where_block
-    return sparql_statement
 
 
 def retrieve_wiki_info_person(name: str, lang: str, onto_graph: rdflib.Graph) -> {}:

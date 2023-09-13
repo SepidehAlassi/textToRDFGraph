@@ -1,11 +1,8 @@
 import unittest
 from pipes.PronounResolver import is_resolvable, resolve_pers_pronoun
 from Entitiy import PersonEntity
-from pipes.NLP_Parsers.spacyParser import SpacyParser
+from pipes.util.NLP_Parser import SpacyParser
 from pipes.DependencyParser import SentenceComp
-import os
-from spacy import displacy
-
 
 jane = PersonEntity(text="Jane Doe",
                      label="PERSON",
