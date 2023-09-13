@@ -4,7 +4,7 @@ import json
 from pipes.ResourceCreator import create_resources
 from Entitiy import Entity
 from pipes.NamedEntityResognizer import parse_NE
-from pipes.WikiInformationRetriever import retrieve_wiki_infromation
+from pipes.WikiInformationRetriever import retrieve_wiki_info
 from pipes.PreProcessor import preprocess_input
 
 
@@ -12,7 +12,7 @@ def stage1(parser, existing_entities, inputs):
 
     found_locations, found_persons = parse_NE(parser, inputs)
 
-    entities_dict = retrieve_wiki_infromation(found_locations, found_persons, existing_entities, inputs)
+    entities_dict = retrieve_wiki_info(found_locations, found_persons, existing_entities, inputs)
 
     json_path = os.path.join(inputs.project_name, inputs.project_name + '_entities.json')
     with open(json_path, "w") as output_json:

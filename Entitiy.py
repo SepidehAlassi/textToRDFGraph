@@ -17,7 +17,7 @@ class GeoEntity(Entity):
     def __init__(self, text, label, start_char=0, end_char=0, wiki_id="", lang="en", iri='', document='',
                  geoname_id=""):
         super().__init__(text, label, start_char, end_char, wiki_id, lang, iri, document)
-        self.geoname_id = geoname_id  # GeoName ID of the location extracted from wikidata
+        self.geoNameID = geoname_id  # GeoName ID of the location extracted from wikidata
 
 
 class PersonEntity(Entity):
@@ -25,8 +25,8 @@ class PersonEntity(Entity):
                  given_name="", family_name="", gender=""):
         super().__init__(text, label, start_char, end_char, wiki_id, lang, iri, document)
         self.gnd = gnd  # GND number of the person extracted from wikidata
-        self.given_name = given_name  # Given name of the person extracted from wikidata
-        self.family_name = family_name  # Family name of the person extracted from wikidata
+        self.givenName = given_name  # Given name of the person extracted from wikidata
+        self.familyName = family_name  # Family name of the person extracted from wikidata
         self.gender = gender
 
 

@@ -10,12 +10,12 @@
 nlpg:PersonShape a sh:NodeShape  ;
     sh:targetClass nlpg:Person ;
     sh:property [
-        sh:path schema:givenName ;
+        sh:path nlpg:givenName ;
         sh:maxCount 3 ;
         sh:datatype xsd:string ;
     ] ,
     [
-        sh:path schema:familyName ;
+        sh:path nlpg:familyName ;
         sh:datatype xsd:string ;
     ] ,
     [
@@ -43,7 +43,7 @@ nlpg:LocationShape a sh:NodeShape  ;
         sh:languageIn ("en" "de" "fa") ;
     ] ,
     [
-        sh:path nlpg:geoName ;
+        sh:path nlpg:geoNameID ;
         sh:minCount 1 ;
         sh:maxCount 1 ;
         sh:datatype xsd:string ;

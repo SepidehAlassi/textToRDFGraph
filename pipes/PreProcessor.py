@@ -1,5 +1,4 @@
 from langdetect import detect
-
 import os
 from rdflib import Graph
 
@@ -25,7 +24,7 @@ def parse_shacl(file):
     :return: shapes graph
     """
     graph = Graph()
-    default_shacl = os.path.join('..','..','nlpGraph_shacl.ttl')
+    default_shacl = os.path.join('..', '..', 'nlpGraph_shacl.ttl')
     graph.parse(default_shacl, format='ttl')
     if file != '':
         graph.parse(file, format='ttl')
@@ -39,7 +38,6 @@ class Input:
         self.onto_graph = parse_ontology(onto_path)
         self.shacl_graph = parse_shacl(shacl_path)
         self.project_name = project_name
-
 
 
 def detect_lang(text):
