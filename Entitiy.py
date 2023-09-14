@@ -28,42 +28,30 @@ class PersonEntity(Entity):
 
 
 def from_json(dct):
+    def convert_to_ent(ent, obj):
+        for key, val in ent:
+            if ':' in key:
+                attr_name = key.split(':')[1]
+            else:
+                attr_name=key
+            setattr(obj, attr_name, val)
+
     output = {'Locations': {}, 'Persons': {}}
     for key, locs in dct['Locations'].items():
         output['Locations'][key] = []
         for loc in locs:
-            output['Locations'][key].append(GeoEntity(text=loc['text'],
-                                                      label=loc['label'],
-                                                      start_char=loc['start_char'],
-                                                      end_char=loc['end_char'],
-                                                      wiki_id=loc['wiki_id'],
-                                                      lang=loc['language'],
-                                                      iri=loc['iri'],
-                                                      document=loc['document'],
-                                                      geoname_id=loc['geoname_id']))
+            location_obj = GeoEntity()
+            convert_to_ent(loc, location_obj)
+            output['Locations'][key].append(location_obj)
 
     for pers_key, values in dct['Persons'].items():
         output['Persons'][pers_key] = []
         for pers in values:
-            output['Persons'][pers_key].append(PersonEntity(text=pers['text'],
-                                                            label=pers['label'],
-                                                            start_char=pers['start_char'],
-                                                            end_char=pers['end_char'],
-                                                            wiki_id=pers['wiki_id'],
-                                                            lang=pers['language'],
-                                                            iri=pers['iri'],
-                                                            document=pers['document'],
-                                                            gnd=pers['gnd'],
-                                                            given_name=pers['given_name'],
-                                                            family_name=pers['family_name'],
-                                                            gender=pers['gender']))
+            pers_obj = PersonEntity()
+            convert_to_ent(pers, pers_obj)
+            output['Persons'][pers_key].append(pers)
     return output
 
 
 if __name__ == '__main__':
-    pers1 = PersonEntity("firstPers", "pers1", 0, 3)
-    pers2 = PersonEntity("2ndPers", "pers2", 4, 10)
-    pers3 = PersonEntity("3rdPers", "pers3", 12, 18)
-    persons = [pers3, pers1, pers2]
-    sorted_list = sorted(persons, key=lambda x: x.start_char)
-    print(sorted_list)
+    pass

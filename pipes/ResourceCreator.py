@@ -9,11 +9,13 @@ from pipes.util.sparql_tools import find_prop_range_statement
 # Add namespace
 NLPG = Namespace("http://www.NLPGraph.com/ontology/")
 
+
 def get_prop_range(graph, prop_iri):
     sparql_statement = find_prop_range_statement(prop_iri)
     query_result = list(graph.query(sparql_statement))
     row = query_result[0]
     return row.range
+
 
 def add_resource_to_graph(entity_references, res_iri, ne_type, data_graph, onto_graph):
     """
@@ -39,12 +41,12 @@ def add_resource_to_graph(entity_references, res_iri, ne_type, data_graph, onto_
         data_graph.add((res_iri, NLPG.name, Literal(name, lang=lang)))
     wiki_id = entity_references[0].get('wiki_id')
     data_graph.add((res_iri, OWL.sameAs, Literal(wiki_id, datatype=XSD.anyURI)))
-    props={}
+    props = {}
     for key, val in reference.items():
         if ':' in key:
             prefix, prop_label = key.split(':')
             ns = namespaces[prefix]
-            prop_iri = URIRef(ns+prop_label)
+            prop_iri = URIRef(ns + prop_label)
             range = get_prop_range(onto_graph, prop_iri)
             if str(range).startswith(namespaces['xsd']):
                 props[prop_iri] = {'value': val, 'datatype': range}
@@ -131,6 +133,7 @@ def create_document_resource_wo_references(doc_iri, inputs, graph):
         DEFAULT = Namespace(namespaces[''])
     else:
         DEFAULT = Namespace("http://www.NLPGraph.com/resource/")
+
     def generate_text_resource(text, doc_label):
         text_res_iri = URIRef(DEFAULT + doc_label + '_' + 'text')
         graph.add((text_res_iri, RDF.type, NLPG.Text))
@@ -202,13 +205,14 @@ def create_resources(entities_json, inputs: Input):
                              onto_graph=inputs.onto_graph,
                              project_name=inputs.project_name)
     add_document_resource_to_graph(entities_json=entities_json,
-                                   inputs=inputs)
+                                                inputs=inputs)
 
 
 if __name__ == '__main__':
     entities_json = os.path.join(os.getcwd(), 'magellan', 'magellan_entities.json')
-    test_input = Input(text_path=os.path.join(os.getcwd(), 'inputs', 'test_data', 'magellan_voyage', 'en_magellan_voyage.txt'),
-                       onto_path=os.path.join(os.getcwd(), 'inputs', 'example_onto.ttl'),
-                       shacl_path=os.path.join(os.getcwd(), 'inputs', 'example_shacl.ttl'),
-                       project_name='magellan')
+    test_input = Input(
+        text_path=os.path.join(os.getcwd(), 'inputs', 'test_data', 'magellan_voyage', 'en_magellan_voyage.txt'),
+        onto_path=os.path.join(os.getcwd(), 'inputs', 'example_onto.ttl'),
+        shacl_path=os.path.join(os.getcwd(), 'inputs', 'example_shacl.ttl'),
+        project_name='magellan')
     create_resources(entities_json, test_input)

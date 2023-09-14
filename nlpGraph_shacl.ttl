@@ -32,7 +32,7 @@ nlpg:GenderShape
 	sh:path nlpg:gender;
     sh:minCount 1 ;
     sh:maxCount 1 ;
-    sh:in ('male' 'female') ;
+    sh:in ("male"^^xsd:string "female"^^xsd:string) ;
     sh:targetClass nlpg:Person.
 
 nlpg:WikiIRIShape
@@ -43,15 +43,17 @@ nlpg:WikiIRIShape
 
 nlpg:NameShape
 	a sh:PropertyShape ;
-	sh:path schema:name;
+	sh:path nlpg:name;
     sh:minCount 1 ;
-    sh:languageIn ("en" "de" "fa") .
+    sh:languageIn ("en" "de" "fa") ;
+    sh:targetClass nlpg:NamedEntity .
 
 nlpg:geoNameIDShape
 	a sh:PropertyShape ;
 	sh:path nlpg:geoNameID;
-    sh:maxCount 1 ;
-    sh:datatype xsd:string  .
+    sh:minCount 1 ;
+    sh:datatype xsd:string  ;
+    sh:targetClass nlpg:Location.
 
 nlpg:DocumentShape a sh:NodeShape  ;
     sh:targetClass nlpg:Document ;
@@ -69,7 +71,7 @@ nlpg:DocumentShape a sh:NodeShape  ;
         sh:path nlpg:hasLanguage ;
         sh:minCount 1 ;
         sh:maxCount 1 ;
-        sh:in ("English" "German" "Persian") ;
+        sh:in ("English"^^xsd:string "German"^^xsd:string "Persian"^^xsd:string) ;
         sh:severity sh:Violation ;
         sh:message "Accepted languages for a document are English, German, and Persian" ;
     ] .
@@ -88,5 +90,5 @@ nlpg:TextShape a sh:NodeShape  ;
     ] ,
     [
         sh:path nlpg:hasStandoffLink ;
-        sh:class nlpg:NamedEntity ;
+        sh:nodeKind sh:BlankNode ;
     ] .

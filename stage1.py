@@ -31,7 +31,6 @@ def entities_toJson(entities_dict, wiki_props):  # get a class instance
 
 
 def stage1(parser, existing_entities, inputs):
-
     found_locations, found_persons = parse_NE(parser, inputs)
 
     entities_dict, wiki_props = retrieve_wiki_info(found_locations, found_persons, existing_entities, inputs)
@@ -40,21 +39,21 @@ def stage1(parser, existing_entities, inputs):
     json_path = os.path.join(inputs.project_name, inputs.project_name + '_entities.json')
     with open(json_path, "w") as output_json:
         json.dump(jsonified_entities, output_json, indent=4, ensure_ascii=True)
-    data_graph = create_resources(entities_json=json_path,
+    create_resources(entities_json=json_path,
                      inputs=inputs)
 
-    conforms, results_graph, results_text = validate(data_graph,
-                 shacl_graph=inputs.shacl_graph,
-                 ont_graph=inputs.onto_graph,
-                 inference='rdfs',
-                 abort_on_first=False,
-                 allow_infos=False,
-                 allow_warnings=False,
-                 meta_shacl=False,
-                 advanced=False,
-                 js=False,
-                 debug=False)
-    print(conforms)
+    data_graph_file = os.path.join(inputs.project_name, inputs.project_name + '_graph.ttl')
+    conforms, results_graph, results_text = validate(data_graph=data_graph_file,
+                                                     data_graph_format='turtle',
+                                                     shacl_graph=inputs.shacl_graph.serialize(format='turtle'),
+                                                     ont_graph=inputs.onto_graph.serialize(format='turtle'),
+                                                     inference='rdfs',
+                                                     abort_on_error=False,
+                                                     meta_shacl=False,
+                                                     debug=False)
+    if not conforms:
+        print(results_graph)
+
 
 if __name__ == '__main__':
     working_dir = os.getcwd()
@@ -69,4 +68,4 @@ if __name__ == '__main__':
     stage1(parser='spacy',
            existing_entities=entities_dict,
            inputs=inputs)
-    print('done')
+    print('Stage1 done')
