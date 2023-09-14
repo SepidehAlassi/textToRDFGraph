@@ -1,5 +1,5 @@
 from spacy import displacy
-from pipes.util.NLP_Parser import SpacyParser
+from pipes.util.NLP_Parser.spacyParser import SpacyParser
 import os
 import json
 
@@ -35,7 +35,9 @@ class SpacyPosParser:
         subjects = [token for token in sent if token.dep_ in self.subject_tags]
         objects = [token for token in sent if token.dep_ in self.object_tags]
         found_sent_objects = []
-
+        if len(subjects) == 0 or len(objects)==0:
+            return found_sent_objects
+        #TODO: fix the bug with missing subj, or obj, a sentence component should have all its parts
         for subject in subjects:
             sent_obj = Sentence()
             compound = [token for token in sent if token.dep_ in self.compound_tags and token.head == subject]
@@ -89,7 +91,9 @@ class SpacyPosParser:
         sentences = list(self.doc.sents)
         sent_components = {}
         for idx, sent in enumerate(sentences):
-            sent_components[idx] = self.break_sentence(sent)
+            sent_comp = self.break_sentence(sent)
+            if len(sent_comp):
+                sent_components[idx] =sent_comp
         return sent_components
 
 

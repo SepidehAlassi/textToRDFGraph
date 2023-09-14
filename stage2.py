@@ -25,7 +25,6 @@ def stage2(inputs, entities_json):
     # Pronoun resolution pipe
     resolve_pronouns(sentence_comps, pers_stack, lang=inputs.lang)
 
-
     # Postprocessing the graph
     post_process_graph(sentence_comps, inputs=inputs)
     print('End of stage2')
@@ -34,7 +33,7 @@ def stage2(inputs, entities_json):
 if __name__ == '__main__':
     working_dir=os.getcwd()
     entities_json = os.path.join(working_dir, 'magellan', 'magellan_entities.json')
-    text_path=os.path.join(working_dir, 'inputs', 'test_data', 'magellan_voyage', 'en_magellan_voyage.txt'),
+    text_path = os.path.join(working_dir, 'inputs', 'test_data', 'magellan_voyage', 'en_magellan_voyage.txt')
     project_name = 'magellan'
     inputs = preprocess_input(text_path=text_path, project_name=project_name)
 
