@@ -2,9 +2,9 @@ import os.path
 import unittest
 from pyshacl import validate
 
-data_graph = os.path.join(os.path.dirname(__file__), '..', '..', 'magellan', 'magellan_graph.ttl')
-shacl_graph = os.path.join(os.path.dirname(__file__), '..', '..', 'nlpGraph_shacl.ttl')
-ont_graph = os.path.join(os.path.dirname(__file__), '..', '..', 'nlpGraph_onto.ttl')
+data_graph = os.path.join(os.path.dirname(__file__), '..', '..', 'dh2023', 'dh2023_graph.ttl')
+shacl_graph = os.path.join(os.path.dirname(__file__), '..', '..', 'inputs', 'example_shacl.ttl')
+ont_graph = os.path.join(os.path.dirname(__file__), '..', '..', 'inputs', 'example_onto.ttl')
 
 
 class MyTestCase(unittest.TestCase):

@@ -1,4 +1,4 @@
-@prefix ex: <http://example.org/> .
+@prefix ex: <http://www.example.com/ontology/> .
 @prefix xsd:        <http://www.w3.org/2001/XMLSchema#> .
 @prefix rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs:       <http://www.w3.org/2000/01/rdf-schema#> .
@@ -11,8 +11,6 @@
 ex:BirthDateShape
 	a sh:PropertyShape ;
 	sh:path ex:birthDate;
-	sh:message "We need at least one birth date value for a person" ;
-    sh:severity sh:Violation ;
 	sh:minCount 1 ;
     sh:datatype xsd:date ;
     sh:targetClass nlpg:Person.
@@ -20,9 +18,7 @@ ex:BirthDateShape
 ex:DeathDateShape
 	a sh:PropertyShape ;
 	sh:path ex:deathDate;
-	sh:message "More than one death date given for a person." ;
 	sh:maxCount 1 ;
-    sh:severity sh:Violation ;
     sh:datatype xsd:date ;
     sh:targetClass nlpg:Person.
 
@@ -46,8 +42,5 @@ ex:TraveledToShape
 ex:PopulationShape
 	a sh:PropertyShape ;
 	sh:path ex:population;
-	sh:message "No population is given for the location." ;
-    sh:severity sh:Violation ;
-	sh:minCount 1 ;
     sh:datatype xsd:double ;
     sh:targetClass nlpg:Location.

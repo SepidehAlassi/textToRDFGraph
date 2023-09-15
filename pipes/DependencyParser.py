@@ -1,4 +1,3 @@
-from spacy import displacy
 from pipes.util.NLP_Parser.spacyParser import SpacyParser
 import os
 import json
@@ -18,26 +17,26 @@ class Sentence:
         self.verb = verb
 
 
-class SpacyPosParser:
+class DependencyParser:
     def __init__(self, text, lang):
-        self.doc = SpacyParser().spacy_parse(text, lang)
-
+        self.text = text
+        self.lang = lang
         self.compound_tags = ['compound', 'pnc']
         self.subject_tags = ['nsubj', 'nsubjpass', 'sb']
         self.object_tags = ['pobj', 'dobj', 'iobj', 'nk']
 
-    def break_sentence(self, sent):
+    def parse_sentence(self, sent):
         """
-        Break the sentence into subject, verb, object.
+        Parse subject, verb, and object out of the sentence
         :param sent: input sentence
         :return: sentence components
         """
+
         subjects = [token for token in sent if token.dep_ in self.subject_tags]
         objects = [token for token in sent if token.dep_ in self.object_tags]
         found_sent_objects = []
-        if len(subjects) == 0 or len(objects)==0:
+        if len(subjects) == 0 or len(objects) == 0:
             return found_sent_objects
-        #TODO: fix the bug with missing subj, or obj, a sentence component should have all its parts
         for subject in subjects:
             sent_obj = Sentence()
             compound = [token for token in sent if token.dep_ in self.compound_tags and token.head == subject]
@@ -65,8 +64,8 @@ class SpacyPosParser:
 
                 for obj in objects:
                     sent_obj.obj = SentenceComp(obj.text, obj)
-
-            found_sent_objects.append(sent_obj)
+            if sent_obj.obj != '' and sent_obj.subj != '' and sent_obj.verb != '':
+                found_sent_objects.append(sent_obj)
             conjs = [token for token in sent if token.dep_ == 'conj']
             for conj in conjs:
                 new_obj = Sentence(sent_obj.subj, sent_obj.verb, sent_obj.obj)
@@ -79,7 +78,8 @@ class SpacyPosParser:
                     new_obj.subj = SentenceComp(comp + conj.text, conj)
                 else:  # objects
                     new_obj.obj = SentenceComp(comp + conj.text, conj)
-                found_sent_objects.append(new_obj)
+                if new_obj.obj != '' and new_obj.subj != '' and new_obj.verb != '':
+                    found_sent_objects.append(new_obj)
 
         return found_sent_objects
 
@@ -88,25 +88,24 @@ class SpacyPosParser:
         Get the components of sentences in the text
         :return: a dictionary with sentence index and components found in that sentence describing relation.
         """
-        sentences = list(self.doc.sents)
+        def get_sentences():
+            """
+            This function breaks the text into sentences.
+            :param text: input text
+            :return: list of sentences
+            """
+            checkString = lambda s: any(c.isalpha() for c in s) or any(c.isdigit() for c in s)
+            sents = [elem+'.' for elem in self.text.split('.\n') if checkString(elem)]
+            return sents
+
+        sentences = get_sentences()
         sent_components = {}
-        for idx, sent in enumerate(sentences):
-            sent_comp = self.break_sentence(sent)
+        for idx, sentence in enumerate(sentences):
+            sent = SpacyParser().spacy_parse(text=sentence, lang=self.lang)
+            sent_comp = self.parse_sentence(sent)
             if len(sent_comp):
-                sent_components[idx] =sent_comp
+                sent_components[idx] = sent_comp
         return sent_components
-
-
-def visualize_pos(doc, project_name):
-    """
-    Visualize dependencies in the sentences of the input text
-    :param doc: spacy document object for the input text
-    :param project_name:project name
-    """
-    dep_svg = displacy.render(doc, style="dep")
-    filepath = os.path.join(project_name, project_name + "_dep_vis.svg")
-    with open(filepath, "w", encoding="utf-8") as file:
-        file.write(dep_svg)
 
 
 def get_entity_of_sentence_component(sentence_components, entities, lang):
@@ -157,8 +156,7 @@ def parse_dependencies(text, project_name, lang, entities):
     :param entities: extracted named entities
     :return: sentence components and persons stack extracted form the text
     """
-    pos_parser = SpacyPosParser(text, lang)
-    visualize_pos(pos_parser.doc, project_name=project_name)
+    pos_parser = DependencyParser(text, lang)
     sent_components = pos_parser.get_sent_components()
     sent_components, pers_stack = get_entity_of_sentence_component(sent_components, entities, lang)
     return sent_components, pers_stack

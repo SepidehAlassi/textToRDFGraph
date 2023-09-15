@@ -31,11 +31,16 @@ def stage2(inputs, entities_json):
 
 
 if __name__ == '__main__':
-    working_dir=os.getcwd()
-    entities_json = os.path.join(working_dir, 'magellan', 'magellan_entities.json')
-    text_path = os.path.join(working_dir, 'inputs', 'test_data', 'magellan_voyage', 'en_magellan_voyage.txt')
-    project_name = 'magellan'
-    inputs = preprocess_input(text_path=text_path, project_name=project_name)
+    working_dir = os.getcwd()
+    entities_json = os.path.join(working_dir, 'dh2023', 'dh2023_entities.json')
+    text_path = os.path.join(working_dir, 'inputs', 'test_data', 'dh2023', 'en_swiss.txt')
+    onto_path = os.path.join(working_dir, 'inputs', 'example_onto.ttl')
+    shacl_path = os.path.join(working_dir, 'inputs', 'example_shacl.ttl')
+    project_name = 'dh2023'
+    inputs = preprocess_input(text_path=text_path,
+                              onto_path=onto_path,
+                              shacl_path=shacl_path,
+                              project_name=project_name)
 
     stage2(inputs=inputs,
            entities_json=entities_json)

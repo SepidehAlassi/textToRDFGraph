@@ -36,7 +36,7 @@ def add_resource_to_graph(entity_references, res_iri, ne_type, data_graph, onto_
         reference['iri'] = res_iri
 
     data_graph.add((res_iri, RDF.type, ne_type))
-    namespaces = dict(data_graph.namespaces())
+    namespaces = dict(onto_graph.namespaces())
     for lang, name in names.items():
         data_graph.add((res_iri, NLPG.name, Literal(name, lang=lang)))
     wiki_id = entity_references[0].get('wiki_id')
@@ -55,7 +55,7 @@ def add_resource_to_graph(entity_references, res_iri, ne_type, data_graph, onto_
 
     for prop in props.keys():
         object_val = props[prop]
-        if 'datatype' in object_val:
+        if 'datatype' in object_val.keys():
             data_graph.add((res_iri, prop, Literal(object_val['value'], datatype=object_val['datatype'])))
         else:
             data_graph.add((res_iri, prop, URIRef(object_val['value'])))
@@ -89,7 +89,7 @@ def construct_graph_with_NEs(entities_path, onto_graph, project_name):
         entities_dict = json.load(input_file)
     locations = entities_dict.get('Locations')
     persons = entities_dict.get('Persons')
-    namespaces = dict(entities_graph.namespaces())
+    namespaces = dict(onto_graph.namespaces())
     if '' in namespaces.keys():
         DEFAULT = Namespace(namespaces[''])
     else:
