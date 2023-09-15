@@ -7,10 +7,6 @@ import os
 import pandas as pd
 from nltk.corpus import wordnet
 
-# Add namespace
-DEFAULT = Namespace("http://www.NLPGraph.com/resource/")
-NLPG = Namespace("http://www.NLPGraph.com/ontology/")
-
 
 def write_to_excel(sent_comps, project_name):
     """
@@ -32,44 +28,67 @@ def write_to_excel(sent_comps, project_name):
         pos_info.to_excel(writer, sheet_name='POS info')
 
 
-def add_new_edges(links_to_add, inputs:Input):
+def add_new_edges(links_to_add, inputs: Input):
     """
     Add new edges to the graph that represent links between two named entities.
     :param links_to_add: new edges to be added to the graph
     :param inputs: collection of input items
     """
+    def make_embeded_triple(triple_part):
+        part = URIRef(triple_part).n3(graph.namespace_manager)
+        prefix = part.split(':')[0]
+        used_namespaces[prefix] = namespaces[prefix]
+        return part + " "
+
     graph = Graph()
     graph_file_path = os.path.join(inputs.project_name, inputs.project_name + '_graph.ttl')
     graph.parse(graph_file_path, format='ttl')
+    namespaces = dict(graph.namespaces())
+    DEFAULT = Namespace(namespaces[''])
+    NLPG = Namespace(namespaces['nlpg'])
+    used_namespaces = {}
     star_statements = ""
     for link in links_to_add:
-        graph.add((URIRef(link['subj_iri']), URIRef(link['prop_iri']), URIRef(link['obj_iri'])))
-        star_statements += "<< <" + link['subj_iri'] + "> <" + link['prop_iri'] + "> <" + link[
-            'obj_iri'] + "> >> nlpg:mentionedIn <" + DEFAULT + inputs.doc_name + "> .\n"
+        subj_iri=link['subj_iri']
+        prop_iri = link['prop_iri']
+        obj_iri = link['obj_iri']
+
+        graph.add((URIRef(subj_iri), URIRef(prop_iri), URIRef(obj_iri)))
+
+        embedded_triple = "<< "
+        embedded_triple += make_embeded_triple(subj_iri)
+        embedded_triple += make_embeded_triple(prop_iri)
+        embedded_triple += make_embeded_triple(obj_iri)
+        embedded_triple += ">> "
+        
+        used_namespaces['nlpg'] = NLPG
+
+        star_statements += embedded_triple + \
+                           URIRef(NLPG + 'mentionedIn').n3(graph.namespace_manager) + " " +\
+                           URIRef(DEFAULT + inputs.doc_name).n3(graph.namespace_manager) + " .\n"
     graph.serialize(destination=graph_file_path, format='turtle')
 
     star_graph_path = os.path.join(inputs.project_name, inputs.project_name + '_graph_metadata.ttl')
-    star_graph = initialize_graph(star_graph_path, onto_graph=inputs.onto_graph)
-    star_graph.serialize(destination=star_graph_path, format='turtle')
-    with open(star_graph_path, 'a') as star_graph_file:
-        star_graph_file.write(star_statements)
+
+    with open(star_graph_path, 'w') as star_graph_file:
+        for prefix, namespace in used_namespaces.items():
+            star_graph_file.write('@prefix '+prefix+": <"+namespace+"> .\n")
+        star_graph_file.write('\n' + star_statements)
 
 
 def validate_graph(inputs: Input):
-    # read shapes graph from file
-    with open(inputs.shacl_graph) as shape_file:
-        shapes = shape_file.read()
-    # read the data graph from file
-    with open(os.path.join(inputs.project_name, inputs.project_name + '_graph.ttl')) as data_file:
-        data = data_file.read()
-    conforms, v_graph, v_text = validate(data_graph=data,
-                                         shacl_graph=shapes,
-                                         data_graph_format='turtle',
-                                         shacl_graph_format='turtle',
-                                         inference="rdfs",
-                                         debug=True,
-                                         serialize_report_graph=True)
-    print(conforms)
+    data_graph_file = os.path.join(inputs.project_name, inputs.project_name + '_graph.ttl')
+    conforms, results_graph, results_text = validate(data_graph=data_graph_file,
+                                                     data_graph_format='turtle',
+                                                     shacl_graph=inputs.shacl_graph.serialize(format='turtle'),
+                                                     ont_graph=inputs.onto_graph.serialize(format='turtle'),
+                                                     inference='rdfs',
+                                                     abort_on_error=False,
+                                                     meta_shacl=False,
+                                                     debug=False)
+
+    if not conforms:
+        print(results_graph)
 
 
 def extract_entity_relations(onto_graph):
@@ -106,6 +125,7 @@ def post_process_graph(sentence_comps, inputs: Input):
     1. Write relations between entities extracted from text to Excel,
     2. extract relations from the input ontology,
     3. Match the extracted relations from text and ontology, and update the graph accordingly
+    4. validate graph with shacl shapes
     :param sentence_comps: the relations between named entities extracted from sentences of input text
     :param inputs: the input data collection
     """
@@ -119,7 +139,7 @@ def post_process_graph(sentence_comps, inputs: Input):
     update_graph(sentence_comps, inputs, relation_props)
 
     # Validate data graph
-    # validate_graph(inputs)
+    validate_graph(inputs)
 
 
 def update_graph(sentence_comps, inputs: Input, relation_props):
