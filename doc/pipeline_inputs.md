@@ -29,11 +29,10 @@ ex:birthDate rdf:type owl:DatatypeProperty ;
          rdfs:domain  nlpg:Person ;
          rdfs:range   xsd:date .
 ```
-where 
-
 In this way, you can tell pipeline to retrieve information about the birthdate of a person from Wikidata and add this 
 info to the node of the graph representing this person.  
 **Note:** the property should be given as `owl:DatatypeProperty`
+
 3. The relations that must be extracted during the second stage of the pipeline through dependency parsing and POS tagging,
 should be given as `owl:ObjectProperty` with `rdfs:range` and `rdfs:domain` which are `nlpg:Person` or `nlpg:Location`.
 For example, suppose we want the pipeline to find all locations a person traveled to from the input text, we can define 
@@ -65,7 +64,15 @@ ex:BirthDateShape
     sh:datatype xsd:date ;
     sh:targetClass nlpg:Person.
 ```
-2. Property shapes to validate the object properties that represent relation between named entities.
+2. cardinality requirements for a property must be given using the `sh:maxCount` and `sh:minCount` predicates defined in 
+shacl vocabulary. For optional properties, no cardinality restriction is required in the shapes graph. However, for the 
+non-optional properties such as `ex:birthDate` above a minimum cardinality value must be given in the shapes graph through 
+`sh:minCount` predicate. The property shape `ex:BirthDateShape` states that each `nlpg:Person` resource in the output data graph, must 
+at least have one birthdate given through `ex:birthdate` predicate. That means, the pipeline must retrieve at least one birthdate
+from Wikidata for each Person entity. That means, the property `ex:birthdate` is non-optional. 
+
+
+3. Property shapes to validate the object properties that represent relation between named entities.
 ```
 ex:TraveledToShape
 	a sh:PropertyShape ;
