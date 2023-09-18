@@ -1,15 +1,18 @@
 from stage1 import stage1
 from stage2 import stage2
 from pipes.PreProcessor import preprocess_input
+from pipes.util.json_handler import entities_fromJson
 import os
-import json
 import time
 
 
-def pipeline(text_path, ontology_path, project_name):
+def pipeline(text_path, ontology_path='', shacl_path='', project_name='test'):
     parser_type = input('NER with spaCy or flair?').lower()
     entities_dict = {'Locations': {}, 'Persons': {}}
-    inputs = preprocess_input(text_path, ontology_path, project_name)
+    inputs = preprocess_input(text_path=text_path,
+                              onto_path=ontology_path,
+                              shacl_path=shacl_path,
+                              project_name=project_name)
     if inputs.lang == 'fa':
         parser_type = 'flair'
 
@@ -46,8 +49,7 @@ def pipeline_multiple(dir_path, ontology_path, shacl_path, project_name):
                inputs=input_params)
 
         json_path = os.path.join(input_params.project_name, input_params.project_name + '_entities.json')
-        with open(json_path) as input_file:
-            entities_dict = json.load(input_file)
+        entities_dict = entities_fromJson(json_path)
         if input_params.lang == 'en':
             english_texts.append(input_params)
         if text_path != text_paths[-1]:
@@ -65,11 +67,10 @@ if __name__ == '__main__':
     ontology_path = os.path.join(working_dir, 'inputs', 'nlpGraph_onto.ttl')
     project_name = 'dh2023'
 
-    # pipeline(text_path=text_path,
-    #          ontology_path=ontology_path,
-    #          project_name='testing')
-    data_folder = os.path.join(working_dir, 'inputs', 'test_data', 'dh2023')
-
-    pipeline_multiple(dir_path=data_folder,
-                      ontology_path=ontology_path,
-                      project_name=project_name)
+    pipeline(text_path=text_path,
+             project_name='testing')
+    # data_folder = os.path.join(working_dir, 'inputs', 'test_data', 'dh2023')
+    #
+    # pipeline_multiple(dir_path=data_folder,
+    #                   ontology_path=ontology_path,
+    #                   project_name=project_name)

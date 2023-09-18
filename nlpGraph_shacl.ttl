@@ -1,0 +1,93 @@
+@prefix xml:        <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd:        <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:       <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:        <http://www.w3.org/2002/07/owl#> .
+@prefix schema:     <https://schema.org/> .
+@prefix nlpg:     <http://www.NLPGraph.com/ontology/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+nlpg:GivenNameShape
+	a sh:PropertyShape ;
+	sh:path nlpg:givenName;
+    sh:datatype xsd:string ;
+    sh:targetClass nlpg:Person.
+
+nlpg:FamilyNameShape
+	a sh:PropertyShape ;
+	sh:path nlpg:familyName;
+    sh:datatype xsd:string ;
+    sh:targetClass nlpg:Person.
+
+nlpg:GNDShape
+	a sh:PropertyShape ;
+	sh:path nlpg:gnd;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:targetClass nlpg:Person.
+
+nlpg:GenderShape
+	a sh:PropertyShape ;
+	sh:path nlpg:gender;
+    sh:minCount 1 ;
+    sh:in ("male"^^xsd:string "female"^^xsd:string "männlich"^^xsd:string "weiblich"^^xsd:string) ;
+    sh:targetClass nlpg:Person.
+
+nlpg:WikiIRIShape
+	a sh:PropertyShape ;
+	sh:path owl:sameAs;
+    sh:minCount 1 ;
+    sh:datatype xsd:anyURI .
+
+nlpg:NameShape
+	a sh:PropertyShape ;
+	sh:path nlpg:name;
+    sh:minCount 1 ;
+    sh:languageIn ("en" "de" "fa") ;
+    sh:targetClass nlpg:NamedEntity .
+
+nlpg:geoNameIDShape
+	a sh:PropertyShape ;
+	sh:path nlpg:geoNameID;
+    sh:minCount 1 ;
+    sh:datatype xsd:string  ;
+    sh:targetClass nlpg:Location.
+
+nlpg:DocumentShape a sh:NodeShape  ;
+    sh:targetClass nlpg:Document ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+    ] ,
+    [
+        sh:path nlpg:hasText ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:node nlpg:TextShape ;
+    ] ,
+    [
+        sh:path nlpg:hasLanguage ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ("English"^^xsd:string "German"^^xsd:string "Persian"^^xsd:string) ;
+        sh:severity sh:Violation ;
+        sh:message "Accepted languages for a document are English, German, and Persian" ;
+    ] .
+
+nlpg:TextShape a sh:NodeShape  ;
+    sh:targetClass nlpg:Text ;
+    sh:property [
+        sh:path nlpg:textContent ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+    ] ,
+    [
+        sh:path nlpg:hasReference ;
+        sh:class nlpg:NamedEntity ;
+    ] ,
+    [
+        sh:path nlpg:hasStandoffLink ;
+        sh:nodeKind sh:BlankNode ;
+    ] .

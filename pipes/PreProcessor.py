@@ -1,5 +1,4 @@
 from langdetect import detect
-
 import os
 from rdflib import Graph
 
@@ -11,16 +10,33 @@ def parse_ontology(file):
     :return: graph representing the ontology
     """
     graph = Graph()
-    graph.parse(file, format='ttl')
+    default_onto = os.path.join(os.path.dirname(__file__), '..', 'nlpGraph_onto.ttl')
+    graph.parse(default_onto, format='ttl')
+    if file != '':
+        graph.parse(file, format='ttl')
+    return graph
+
+
+def parse_shacl(file):
+    """
+    Parse the input shacl to validate the generated graph
+    :param file: shacl file with custom shape
+    :return: shapes graph
+    """
+    graph = Graph()
+    default_shacl = os.path.join(os.path.dirname(__file__), '..', 'nlpGraph_shacl.ttl')
+    graph.parse(default_shacl, format='ttl')
+    if file != '':
+        graph.parse(file, format='ttl')
     return graph
 
 
 class Input:
-    def __init__(self, text_path, onto_path, shacl_path, project_name):
+    def __init__(self, text_path, onto_path='', shacl_path='', project_name='test'):
         self.text, self.doc_name = read_text(text_path)
         self.lang = detect_lang(self.text)
         self.onto_graph = parse_ontology(onto_path)
-        self.shacl_file = shacl_path
+        self.shacl_graph = parse_shacl(shacl_path)
         self.project_name = project_name
 
 
@@ -50,7 +66,7 @@ def read_text(text_path):
     return text, document_name
 
 
-def preprocess_input(text_path, onto_path, shacl_path, project_name):
+def preprocess_input(text_path, onto_path='', shacl_path='', project_name='test'):
     """
     Preprocess the inputs of the pipeline into an object
     :param text_path: path to the input text
@@ -66,7 +82,6 @@ def preprocess_input(text_path, onto_path, shacl_path, project_name):
 if __name__ == '__main__':
     working_dir = os.getcwd()
     text_path = os.path.join(working_dir, 'inputs', 'test_data', 'dh2023', 'en_swiss.txt')
-    ontology_path = os.path.join(working_dir, 'inputs', 'nlpGraph_onto.ttl')
     project_name = 'dh2023'
-    inputs = preprocess_input(text_path, ontology_path, project_name)
+    inputs = preprocess_input(text_path=text_path, project_name=project_name)
 

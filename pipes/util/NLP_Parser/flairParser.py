@@ -35,12 +35,12 @@ def flair_ner_test(text, lang, document):
     parser = FlairNERParser()
     _, locations, persons = parser.extract_ne(text, lang)
     found_persons = add_wiki_info_person(persons, document)
-    found_locations = add_wiki_info_location(locations, document)
+    found_locations, _ = add_wiki_info_location(locations, document)
 
     locs_dict = {}
     for loc in found_locations:
-        print(loc.text, loc.geoname_id)
-        locs_dict[loc.geoname_id] = loc.text
+        print(loc.text, loc.geoNameID)
+        locs_dict[loc.geoNameID] = loc.text
 
     pers_dict = {}
     for pers in found_persons:

@@ -1,4 +1,4 @@
-from pipes.NLP_Parsers.spacyParser import SpacyParser
+from pipes.util.NLP_Parser.spacyParser import SpacyParser
 
 gender_map = {'Masc': {'de': 'männlich', 'en': 'male'},
               'Fem': {'de': 'weiblich', 'en': 'female'}}

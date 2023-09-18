@@ -1,3 +1,4 @@
+@prefix wdt: <http://www.wikidata.org/prop/direct/> .
 @prefix xsd:        <http://www.w3.org/2001/XMLSchema#> .
 @prefix rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs:       <http://www.w3.org/2000/01/rdf-schema#> .
@@ -5,7 +6,7 @@
 @prefix schema:     <https://schema.org/> .
 @prefix nlpg:     <http://www.NLPGraph.com/ontology/> .
 
-# The NLP Graph Ontology ontology
+# The NLP Graph Ontology
 
 <http://www.NLPGraph.com/ontology/>
     rdf:type owl:Ontology ;
@@ -34,25 +35,20 @@ nlpg:Location rdf:type owl:Class ;
           rdfs:label "Location"@en ;
           rdfs:comment "A Location"@en .
 
-nlpg:geoName rdf:type owl:DatatypeProperty ;
-         rdfs:subPropertyOf schema:globalLocationNumber ;
-         rdfs:label "Geoname"@de ,
-                    "Geoname"@en ;
+nlpg:geoNameID rdf:type owl:DatatypeProperty ;
+         rdfs:subPropertyOf wdt:P1566 ;
+         rdfs:label "GeoName ID"@de ,
+                    "GeoName ID"@en ;
          rdfs:domain nlpg:Location ;
          rdfs:range xsd:string .
 
-nlpg:name  rdf:type owl:DatatypeProperty ;
-       rdfs:subPropertyOf schema:name ;
-       rdfs:label "Name"@de ,
-                  "Name"@en ;
-       rdfs:range xsd:string .
-
 nlpg:Person rdf:type owl:Class ;
-        rdfs:subClassOf nlpg:NamedEntity, schema:Person ;
+        rdfs:subClassOf nlpg:NamedEntity, schema:Person, wdt:Q5 ;
         rdfs:label "Person"@en ;
         rdfs:comment "A resource representing a person."@en .
 
-nlpg:gnd    rdf:type  owl:DatatypeProperty ;
+nlpg:gnd rdf:type  owl:DatatypeProperty ;
+        rdfs:subPropertyOf wdt:P227 ;
         rdfs:label "Gemeinsame Normdatei (GND)"@de,
                    "Integrated Authority File"@en ;
         rdfs:comment "Repräsentiert eine GND-Nummer."@de,
@@ -60,26 +56,32 @@ nlpg:gnd    rdf:type  owl:DatatypeProperty ;
         rdfs:range   xsd:string ;
         rdfs:domain nlpg:Person .
 
+nlpg:givenName rdf:type  owl:DatatypeProperty ;
+        rdfs:subPropertyOf wdt:P735 , schema:givenName;
+        rdfs:label "Vorname"@de,
+                   "Given Name"@en ;
+        rdfs:comment "Repräsentiert einen Vorname."@de,
+                     "Represents a first name."@en ;
+        rdfs:range   xsd:string ;
+        rdfs:domain nlpg:Person .
 
-nlpg:bornIn rdf:type owl:ObjectProperty ;
-    rdfs:subPropertyOf  schema:birthPlace ;
-    rdfs:label          "Born in"@en ;
-    rdfs:comment        "Birth Place"@en ;
-    rdfs:range          nlpg:Location ;
-    rdfs:domain         nlpg:Person .
+nlpg:familyName rdf:type  owl:DatatypeProperty ;
+        rdfs:subPropertyOf wdt:P734 , schema:familyName;
+        rdfs:label "Nachname"@de,
+                   "Last Name"@en ;
+        rdfs:comment "Repräsentiert einen Nachname."@de,
+                     "Represents a last name."@en ;
+        rdfs:range   xsd:string ;
+        rdfs:domain nlpg:Person .
 
-
-nlpg:livedIn rdf:type   owl:ObjectProperty ;
-         rdfs:label   "Lived in"@en ;
-         rdfs:comment "Place of residence."@en ;
-         rdfs:domain  nlpg:Person ;
-         rdfs:range   nlpg:Location .
-
-nlpg:traveledTo  rdf:type owl:ObjectProperty ;
-             rdfs:label  "Traveled to"@en ;
-             rdfs:comment "Trip destination."@en ;
-             rdfs:domain  nlpg:Person ;
-             rdfs:range   nlpg:Location .
+nlpg:gender rdf:type  owl:DatatypeProperty ;
+        rdfs:subPropertyOf wdt:P21 , schema:gender;
+        rdfs:label "Geschlect"@de,
+                   "Gender"@en ;
+        rdfs:comment "Repräsentiert eine Geschlect."@de,
+                     "Represents a person's gender."@en ;
+        rdfs:range   xsd:string ;
+        rdfs:domain nlpg:Person .
 
 nlpg:Text a owl:Class ;
         rdfs:label "Text"@en ;

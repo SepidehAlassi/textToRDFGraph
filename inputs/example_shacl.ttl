@@ -1,0 +1,46 @@
+@prefix ex: <http://www.example.com/ontology/> .
+@prefix xsd:        <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:       <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:        <http://www.w3.org/2002/07/owl#> .
+@prefix schema:     <https://schema.org/> .
+@prefix nlpg:     <http://www.NLPGraph.com/ontology/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix wdt: <http://www.wikidata.org/prop/direct/> .
+
+ex:BirthDateShape
+	a sh:PropertyShape ;
+	sh:path ex:birthDate;
+	sh:minCount 1 ;
+    sh:datatype xsd:date ;
+    sh:targetClass nlpg:Person.
+
+ex:DeathDateShape
+	a sh:PropertyShape ;
+	sh:path ex:deathDate;
+	sh:maxCount 1 ;
+    sh:datatype xsd:date ;
+    sh:targetClass nlpg:Person.
+
+ex:LivedInShape
+	a sh:PropertyShape ;
+	sh:path ex:livedIn;
+	sh:message "No place of residence found for the person." ;
+    sh:severity sh:Warning ;
+    sh:class nlpg:Location ;
+    sh:targetClass nlpg:Person.
+
+ex:TraveledToShape
+	a sh:PropertyShape ;
+	sh:path ex:traveledTo;
+	sh:message "No travel destinations found for the person." ;
+    sh:severity sh:Warning ;
+    sh:class nlpg:Location ;
+    sh:targetClass nlpg:Person.
+
+
+ex:PopulationShape
+	a sh:PropertyShape ;
+	sh:path ex:population;
+    sh:datatype xsd:double ;
+    sh:targetClass nlpg:Location.
