@@ -155,6 +155,7 @@ def add_wiki_info_location(found_locations, inputs: Input):
     :return: updated locations
     """
     counter = 0
+    wiki_props = {}
     for loc in found_locations:
         loc.document = inputs.doc_name
         same_loc = list(filter(lambda x: x.text == loc.text and x.geoNameID != '', found_locations))
@@ -187,6 +188,7 @@ def add_wiki_info_person(found_persons, inputs: Input):
     :return: updated persons
     """
     counter = 0
+    wiki_props = {}
     for pers in found_persons:
         pers.document = inputs.doc_name
         same_pers = list(filter(lambda x: x.text == pers.text and x.gnd != '', found_persons))

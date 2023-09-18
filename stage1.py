@@ -1,33 +1,11 @@
 import os
 import json
-
+from pyshacl import validate
+from pipes.util.json_handler import entities_toJson
 from pipes.ResourceCreator import create_resources
 from pipes.NamedEntityResognizer import parse_NE
 from pipes.WikiInformationRetriever import retrieve_wiki_info
 from pipes.PreProcessor import preprocess_input
-from pyshacl import validate
-
-
-def entities_toJson(entities_dict, wiki_props):  # get a class instance
-    def convert_ent_to_dict(instance, wiki_props):
-        entity_as_dict = instance.__dict__  # convert it to dictionary and return
-        entity_dict = {}
-        for key, value in entity_as_dict.items():
-            if key in wiki_props.keys():
-                qname = wiki_props[key]['prop_QName']
-                entity_dict[qname] = value
-            else:
-                entity_dict[key] = value
-        return entity_dict
-
-    entities_dict_qname = {}
-    for ent_type, ent_dict in entities_dict.items():
-        entities_dict_qname[ent_type] = {}
-        for identifier, entity_list in ent_dict.items():
-            entities_dict_qname[ent_type][identifier] = []
-            for ent in entity_list:
-                entities_dict_qname[ent_type][identifier].append(convert_ent_to_dict(ent, wiki_props))
-    return entities_dict_qname
 
 
 def stage1(parser, existing_entities, inputs):

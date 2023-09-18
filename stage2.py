@@ -4,19 +4,12 @@ from pipes.PronounResolver import resolve_pronouns
 from pipes.PreProcessor import preprocess_input
 
 import os
-import json
-from Entitiy import from_json
-
-
-def read_entities(entities_json):
-    with open(entities_json, 'r') as file:
-        data = json.load(file)
-    entities = from_json(data)
-    return entities
+from pipes.util.json_handler import entities_fromJson
 
 
 def stage2(inputs, entities_json):
-    entities = read_entities(entities_json)
+
+    entities = entities_fromJson(entities_json)
 
     # dependency parsing pipe
     sentence_comps, pers_stack = parse_dependencies(text=inputs.text, project_name=inputs.project_name,

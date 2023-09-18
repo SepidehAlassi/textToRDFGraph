@@ -31,8 +31,7 @@ nlpg:GenderShape
 	a sh:PropertyShape ;
 	sh:path nlpg:gender;
     sh:minCount 1 ;
-    sh:maxCount 1 ;
-    sh:in ("male"^^xsd:string "female"^^xsd:string) ;
+    sh:in ("male"^^xsd:string "female"^^xsd:string "männlich"^^xsd:string "weiblich"^^xsd:string) ;
     sh:targetClass nlpg:Person.
 
 nlpg:WikiIRIShape

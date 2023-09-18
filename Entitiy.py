@@ -27,31 +27,5 @@ class PersonEntity(Entity):
         self.gender = gender
 
 
-def from_json(dct):
-    def convert_to_ent(ent, obj):
-        for key, val in ent.items():
-            if ':' in key:
-                attr_name = key.split(':')[1]
-            else:
-                attr_name=key
-            setattr(obj, attr_name, val)
-
-    output = {'Locations': {}, 'Persons': {}}
-    for key, locs in dct['Locations'].items():
-        output['Locations'][key] = []
-        for loc in locs:
-            location_obj = GeoEntity(text=loc['text'], label=loc['label'])
-            convert_to_ent(loc, location_obj)
-            output['Locations'][key].append(location_obj)
-
-    for pers_key, values in dct['Persons'].items():
-        output['Persons'][pers_key] = []
-        for pers in values:
-            pers_obj = PersonEntity(text=loc['text'], label=loc['label'])
-            convert_to_ent(pers, pers_obj)
-            output['Persons'][pers_key].append(pers_obj)
-    return output
-
-
 if __name__ == '__main__':
     pass

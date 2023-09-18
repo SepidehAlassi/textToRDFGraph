@@ -1,8 +1,8 @@
 from stage1 import stage1
 from stage2 import stage2
 from pipes.PreProcessor import preprocess_input
+from pipes.util.json_handler import entities_fromJson
 import os
-import json
 import time
 
 
@@ -49,8 +49,7 @@ def pipeline_multiple(dir_path, ontology_path, shacl_path, project_name):
                inputs=input_params)
 
         json_path = os.path.join(input_params.project_name, input_params.project_name + '_entities.json')
-        with open(json_path) as input_file:
-            entities_dict = json.load(input_file)
+        entities_dict = entities_fromJson(json_path)
         if input_params.lang == 'en':
             english_texts.append(input_params)
         if text_path != text_paths[-1]:
