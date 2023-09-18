@@ -27,6 +27,13 @@ def retrieve_wiki_info(found_locations, found_persons, existing_entities, inputs
 def get_required_wiki_props_from_ontology(onto_graph: rdflib.Graph,
                                           shapes_graph: rdflib.Graph,
                                           entity_type="Person") -> {}:
+    """
+    Get the wiki properties specified in the ontology
+    :param onto_graph: input ontology graph
+    :param shapes_graph: input shapes graph
+    :param entity_type: type of the entity we retrieve properties for
+    :return: a dictionary containing properties, their wiki super-property and qName in the current ontology as well as optional info
+    """
     namespaces = dict(onto_graph.namespaces())
     sparql_statement = find_wiki_props_statement(entity_type)
     query_result = onto_graph.query(sparql_statement)
@@ -55,7 +62,7 @@ def retrieve_wiki_info_location(name: str, lang: str, onto_graph: rdflib.Graph, 
     :param lang: text language
     :param onto_graph: the ontology graph
     :param shapes_graph: the shapes graph
-    :return: retrieved location information
+    :return: retrieved location information and wiki properties found in the ontology
     """
 
     wiki_props = get_required_wiki_props_from_ontology(onto_graph=onto_graph,
@@ -92,7 +99,7 @@ def retrieve_wiki_info_person(name: str, lang: str, onto_graph: rdflib.Graph, sh
     :param lang: language of the text
     :param onto_graph: the ontology graph
     :param shapes_graph: the shapes graph
-    :return: information extracted from wikidata for the person
+    :return: information extracted from wikidata for the person and the corresponding wiki properties extracted from the ontology
     """
 
     wiki_props = get_required_wiki_props_from_ontology(onto_graph=onto_graph,
