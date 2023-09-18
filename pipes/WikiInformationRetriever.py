@@ -24,33 +24,47 @@ def retrieve_wiki_info(found_locations, found_persons, existing_entities, inputs
     return existing_entities, {**wiki_props_loc, **wiki_props_pers}
 
 
-def get_required_wiki_props_from_ontology(graph, entity_type="Person"):
-    namespaces = dict(graph.namespaces())
+def get_required_wiki_props_from_ontology(onto_graph: rdflib.Graph,
+                                          shapes_graph: rdflib.Graph,
+                                          entity_type="Person") -> {}:
+    namespaces = dict(onto_graph.namespaces())
     sparql_statement = find_wiki_props_statement(entity_type)
-    query_result = graph.query(sparql_statement)
+    query_result = onto_graph.query(sparql_statement)
     props = {}
     wdt_namespace = namespaces.get('wdt')
     for row in query_result:
-        prop_Qname = row.prop.n3(graph.namespace_manager)
+        prop_Qname = row.prop.n3(onto_graph.namespace_manager)
         prop_label = prop_Qname.split(':')[1]
         props[prop_label] = {'wikidata': 'wdt:' + str(row.wikiProp).strip(wdt_namespace),
-                             'prop_QName': prop_Qname}
+                             'prop_QName': prop_Qname,
+                             'optional': row.minCard is None}
+    sparql_statement = get_NonOptional_props_from_shapesGraph()
+    query_result_shacl = shapes_graph.query(sparql_statement)
+    for row in query_result_shacl:
+        prop_Qname = row.prop.n3(shapes_graph.namespace_manager)
+        prop_label = prop_Qname.split(':')[1]
+        if prop_label in props.keys():
+            props[prop_label]['optional'] = False
     return props
 
 
-def retrieve_wiki_info_location(name, lang, onto_graph):
+def retrieve_wiki_info_location(name: str, lang: str, onto_graph: rdflib.Graph, shapes_graph: rdflib.Graph):
     """
     retrieve information form Wikidata for a location entity
     :param name: name of the entity
     :param lang: text language
     :param onto_graph: the ontology graph
+    :param shapes_graph: the shapes graph
     :return: retrieved location information
     """
 
-    wiki_props = get_required_wiki_props_from_ontology(onto_graph, "Location")
-    sparl_statements = make_wiki_location_query_sparql(name=name,
-                                                       lang=lang,
-                                                       wiki_props=wiki_props)
+    wiki_props = get_required_wiki_props_from_ontology(onto_graph=onto_graph,
+                                                       shapes_graph=shapes_graph,
+                                                       entity_type="Location")
+    sparl_statements = make_wiki_query_sparql(name=name,
+                                              lang=lang,
+                                              wiki_props=wiki_props,
+                                              entity_type='place')
     results = make_wiki_query(sparl_statements)
     wiki_info = {}
     if len(results) == 0:
@@ -71,17 +85,23 @@ def retrieve_wiki_info_location(name, lang, onto_graph):
     return wiki_info, wiki_props
 
 
-def retrieve_wiki_info_person(name: str, lang: str, onto_graph: rdflib.Graph) -> {}:
+def retrieve_wiki_info_person(name: str, lang: str, onto_graph: rdflib.Graph, shapes_graph: rdflib.Graph):
     """
     Retrieve information from Wikidata for a person NE
     :param name: name of the person entity as found in the text
     :param lang: language of the text
     :param onto_graph: the ontology graph
+    :param shapes_graph: the shapes graph
     :return: information extracted from wikidata for the person
     """
 
-    wiki_props = get_required_wiki_props_from_ontology(onto_graph, "Person")
-    sparql_statement = make_wiki_person_query_sparql(name=name, lang=lang, wiki_props=wiki_props)
+    wiki_props = get_required_wiki_props_from_ontology(onto_graph=onto_graph,
+                                                       shapes_graph=shapes_graph,
+                                                       entity_type="Person")
+    sparql_statement = make_wiki_query_sparql(name=name,
+                                              lang=lang,
+                                              wiki_props=wiki_props,
+                                              entity_type='person')
     results = make_wiki_query(sparql_statement)
 
     wiki_info = {}
@@ -138,7 +158,10 @@ def add_wiki_info_location(found_locations, inputs: Input):
                     setattr(loc, attrib, val)
             counter -= 1
         else:
-            wiki_info, wiki_props = retrieve_wiki_info_location(loc.text, loc.language, inputs.onto_graph)
+            wiki_info, wiki_props = retrieve_wiki_info_location(name=loc.text,
+                                                                lang=loc.language,
+                                                                onto_graph=inputs.onto_graph,
+                                                                shapes_graph=inputs.shacl_graph)
             for key, val in wiki_info.items():
                 setattr(loc, key, val)
         if counter == 8:
@@ -168,8 +191,9 @@ def add_wiki_info_person(found_persons, inputs: Input):
             counter -= 1
         else:
             wiki_info, wiki_props = retrieve_wiki_info_person(name=pers.text,
-                                                  lang=pers.language,
-                                                  onto_graph=inputs.onto_graph)
+                                                              lang=pers.language,
+                                                              onto_graph=inputs.onto_graph,
+                                                              shapes_graph=inputs.shacl_graph)
             for key, val in wiki_info.items():
                 setattr(pers, key, val)
         if counter == 8:

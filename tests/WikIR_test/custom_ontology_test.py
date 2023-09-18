@@ -3,11 +3,13 @@ import os
 from pipes.WikiInformationRetriever import *
 import rdflib.term
 
-from pipes.PreProcessor import parse_ontology
+from pipes.PreProcessor import parse_ontology, parse_shacl
 
 test_onto_path = os.path.join(os.path.dirname(__file__), '..', '..', 'inputs', 'example_onto.ttl')
-graph = parse_ontology(test_onto_path)
-namespaces = dict(graph.namespaces())
+test_shacl_path = os.path.join(os.path.dirname(__file__), '..', '..', 'inputs', 'example_shacl.ttl')
+onto_graph = parse_ontology(test_onto_path)
+shapes_graph = parse_shacl(test_shacl_path)
+namespaces = dict(onto_graph.namespaces())
 
 
 class CustomOntoTest(unittest.TestCase):
@@ -23,11 +25,13 @@ class CustomOntoTest(unittest.TestCase):
                 }
             """
 
-        bool_answer = graph.query(sparql_statement).askAnswer
+        bool_answer = onto_graph.query(sparql_statement).askAnswer
         self.assertTrue(bool_answer)
 
     def test_getting_custom_wiki_location_properties(self):
-        props = get_required_wiki_props_from_ontology(graph, "Location")
+        props = get_required_wiki_props_from_ontology(onto_graph=onto_graph,
+                                                      shapes_graph=shapes_graph,
+                                                      entity_type="Location")
         expected_dict = {'geoName': {'wikidata': 'wdt:P1566', 'prop_QName': 'nlpg:geoName'},
                          'population': {'wikidata': 'wdt:P1082', 'prop_QName': 'ex:population'}
                          }
@@ -35,31 +39,45 @@ class CustomOntoTest(unittest.TestCase):
         self.assertEqual(props, expected_dict)
 
     def test_getting_wiki_person_properties(self):
-        props = get_required_wiki_props_from_ontology(graph, "Person")
-        expected_dict = {'gender': {'wikidata': 'wdt:P21', 'prop_QName': "nlpg:gender"},
-                      'givenName': {'wikidata': 'wdt:P735', 'prop_QName': "nlpg:givenName"},
-                      'familyName': {'wikidata': 'wdt:P734', 'prop_QName': "nlpg:familyName"},
-                      'gnd': {'wikidata': 'wdt:P227', 'prop_QName': 'nlpg:gnd'},
-                      'birthDate': {'wikidata': 'wdt:P569', 'prop_QName': 'ex:birthDate'},
-                      'deathDate': {'wikidata': 'wdt:P570', 'prop_QName': 'ex:deathDate'},
-                      }
+        props = get_required_wiki_props_from_ontology(onto_graph=onto_graph,
+                                                      shapes_graph=shapes_graph,
+                                                      entity_type="Person")
+        expected_dict = {'gender': {'wikidata': 'wdt:P21', 'prop_QName': "nlpg:gender", 'optional': False},
+                         'givenName': {'wikidata': 'wdt:P735', 'prop_QName': "nlpg:givenName", 'optional': True},
+                         'familyName': {'wikidata': 'wdt:P734', 'prop_QName': "nlpg:familyName", 'optional': True},
+                         'gnd': {'wikidata': 'wdt:P227', 'prop_QName': 'nlpg:gnd', 'optional': False},
+                         'birthDate': {'wikidata': 'wdt:P569', 'prop_QName': 'ex:birthDate', 'optional': False},
+                         'deathDate': {'wikidata': 'wdt:P570', 'prop_QName': 'ex:deathDate', 'optional': True},
+                         }
         self.assertEqual(props, expected_dict)
 
     def test_getting_wiki_loc_properties(self):
-        props = get_required_wiki_props_from_ontology(graph, "Location")
-        expected_dict = {'geoNameID': {'wikidata': 'wdt:P1566', 'prop_QName': "nlpg:geoNameID"},
-                         'population': {'wikidata': 'wdt:P1082', 'prop_QName': "ex:population"}
+        props = get_required_wiki_props_from_ontology(onto_graph=onto_graph,
+                                                      shapes_graph=shapes_graph,
+                                                      entity_type="Location")
+        expected_dict = {'geoNameID': {'wikidata': 'wdt:P1566', 'prop_QName': "nlpg:geoNameID", 'optional': False},
+                         'population': {'wikidata': 'wdt:P1082', 'prop_QName': "ex:population", 'optional': True}
                          }
         self.assertEqual(props, expected_dict)
 
     def test_person_query(self):
-        wiki_props = get_required_wiki_props_from_ontology(graph, "Person")
-        sparql_statement = make_wiki_person_query_sparql(name="Leonhard Euler", lang="de", wiki_props=wiki_props)
+        wiki_props = get_required_wiki_props_from_ontology(onto_graph=onto_graph,
+                                                           shapes_graph=shapes_graph,
+                                                           entity_type="Person")
+        sparql_statement = make_wiki_query_sparql(name="Leonhard Euler",
+                                                  lang="de",
+                                                  wiki_props=wiki_props,
+                                                  entity_type='person')
         self.assertTrue(len(sparql_statement) != 0)
 
     def test_location_query(self):
-        wiki_props = get_required_wiki_props_from_ontology(graph, "Location")
-        sparql_statement = make_wiki_location_query_sparql(name="Strait of Magellan", lang="en", wiki_props=wiki_props)
+        wiki_props = get_required_wiki_props_from_ontology(onto_graph=onto_graph,
+                                                           shapes_graph=shapes_graph,
+                                                           entity_type="Location")
+        sparql_statement = make_wiki_query_sparql(name="Strait of Magellan",
+                                                  lang="en",
+                                                  wiki_props=wiki_props,
+                                                  entity_type='place')
         self.assertTrue(len(sparql_statement) != 0)
 
 

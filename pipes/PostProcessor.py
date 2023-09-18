@@ -60,7 +60,7 @@ def add_new_edges(links_to_add, inputs: Input):
         embedded_triple += make_embeded_triple(prop_iri)
         embedded_triple += make_embeded_triple(obj_iri)
         embedded_triple += ">> "
-        
+
         used_namespaces['nlpg'] = NLPG
 
         star_statements += embedded_triple + \
