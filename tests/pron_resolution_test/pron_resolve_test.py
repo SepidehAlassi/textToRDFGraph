@@ -1,7 +1,7 @@
 import unittest
 from pipes.PronounResolver import is_resolvable, resolve_pers_pronoun
 from Entitiy import PersonEntity
-from pipes.util.NLP_Parser import SpacyParser
+from pipes.util.NLP_Parser.spacyParser import SpacyParser
 from pipes.DependencyParser import SentenceComp
 
 jane = PersonEntity(text="Jane Doe",
@@ -92,25 +92,25 @@ class PronResolve(unittest.TestCase):
             pronoun1 = pronouns_en[0]
             component = SentenceComp(text=pronoun1.text, token=pronoun1)
             resolve_pers_pronoun(pronoun1.morph.to_dict(), component, 2, persons_en, 'en')
-            self.assertEqual(component.entity, jane)
+            self.assertEqual(jane, component.entity)
 
     def test_resolve_pron_de_nom(self):
             pronoun1 = pronouns_de[0]
             component = SentenceComp(text=pronoun1.text, token=pronoun1)
             resolve_pers_pronoun(pronoun1.morph.to_dict(), component, 1, persons_de, 'de')
-            self.assertEqual(component.entity, john_de)
+            self.assertEqual(john_de, component.entity)
 
     def test_resolve_pron_en_acc(self):
             pronoun2 = pronouns_en[1]
             component = SentenceComp(text=pronoun2.text, token=pronoun2)
             resolve_pers_pronoun(pronoun2.morph.to_dict(), component, 2, persons_en, 'en')
-            self.assertEqual(component.entity, john)
+            self.assertEqual(john, component.entity)
 
     def test_resolve_pron_de_acc(self):
             pronoun2 = pronouns_de[1]
             component = SentenceComp(text=pronoun2.text, token=pronoun2)
             resolve_pers_pronoun(pronoun2.morph.to_dict(), component, 2, persons_de, 'de')
-            self.assertEqual(component.entity, john_de)
+            self.assertEqual(john_de, component.entity)
 
 
 if __name__ == '__main__':
