@@ -120,7 +120,7 @@ class DependencyParser:
                 get_subj_conj_components(conj, subj, found_sent_objects)
 
         add_verb_conjucts(verb_conj, found_sent_objects)
-       
+
         return found_sent_objects
 
     def get_sent_components(self):

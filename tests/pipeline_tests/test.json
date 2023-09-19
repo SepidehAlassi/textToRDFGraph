@@ -1,0 +1,38 @@
+{
+  "Locations": {
+    "2658434": [
+      {
+        "label": "LOC",
+        "text": "Schweiz",
+        "start_char": 7,
+        "end_char": 14,
+        "language": "de",
+        "wiki_id": "http://www.wikidata.org/entity/Q39",
+        "iri": "http://www.example.com/resource/2658434",
+        "document": "de_swiss",
+        "nlpg:geoNameID": "2658434",
+        "ex:population": "8738791"
+      }
+    ]
+  },
+  "Persons": {
+    "118509950": [
+            {
+                "label": "PER",
+                "text": "Jakob I Bernoulli",
+                "start_char": 283,
+                "end_char": 300,
+                "language": "de",
+                "wiki_id": "http://www.wikidata.org/entity/Q122392",
+                "iri": "http://www.example.com/resource/118509950",
+                "document": "de_swiss",
+                "nlpg:gnd": "118509950",
+                "nlpg:givenName": "Jakob",
+                "nlpg:familyName": "Bernoulli",
+                "nlpg:gender": "m\u00e4nnlich",
+                "ex:birthDate": "1655-01-06T00:00:00Z",
+                "ex:deathDate": "1705-08-16T00:00:00Z"
+            }
+        ]
+  }
+}
