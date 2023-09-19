@@ -1,4 +1,5 @@
 from pipes.util.NLP_Parser.spacyParser import SpacyParser
+from pipes.NamedEntityResognizer import SpacyNERParser
 import os
 import json
 
@@ -31,56 +32,95 @@ class DependencyParser:
         :param sent: input sentence
         :return: sentence components
         """
+        def get_compound_component(comp):
+            compound = [token for token in sent if token.dep_ in self.compound_tags and token.head == comp]
+            if len(compound):
+                sent_comp = SentenceComp(compound[0].text + ' ' + comp.text, comp)
+            else:
+                sent_comp = SentenceComp(comp.text, comp)
+            return sent_comp
 
-        subjects = [token for token in sent if token.dep_ in self.subject_tags]
-        objects = [token for token in sent if token.dep_ in self.object_tags]
+        def get_obj_conj_components(obj, sentence_comp: Sentence):
+            for conj in obj.conjuncts:
+                sent_obj = Sentence()
+                sent_obj.obj = get_compound_component(conj)
+                sent_obj.verb = sentence_comp.verb
+                sent_obj.subj = sentence_comp.subj
+                found_sent_objects.append(sent_obj)
+
+        def get_subj_conj_components(conjunct, subject, found_items):
+            items = [sent_item for sent_item in found_items if sent_item.subj.token == subject]
+            for item in items:
+                sent = Sentence()
+                sent.subj = get_compound_component(conjunct)
+                sent.obj = item.obj
+                sent.verb = item.verb
+                found_items.append(sent)
+
+        def add_verb_conjucts(verb_conjucts, found_items):
+            for verb_conj in verb_conjucts:
+                items = [sent_item for sent_item in found_items if verb_conj in sent_item.verb.token.conjuncts]
+                for item in items:
+                    sent = Sentence()
+                    sent.verb = SentenceComp(verb_conj.text, verb_conj)
+                    sent.obj = item.obj
+                    sent.subj = item.subj
+                    found_items.append(sent)
+
+        ner_parser = SpacyNERParser()
+        subjects = [token for token in sent if token.dep_ in self.subject_tags and (token.ent_type_ in ner_parser.personLabels or token.ent_type_ in ner_parser.locationLabels)]
+        objects = [token for token in sent if token.dep_ in self.object_tags and (token.ent_type_ in ner_parser.personLabels or token.ent_type_ in ner_parser.locationLabels)]
         found_sent_objects = []
         if len(subjects) == 0 or len(objects) == 0:
             return found_sent_objects
-        for subject in subjects:
-            sent_obj = Sentence()
-            compound = [token for token in sent if token.dep_ in self.compound_tags and token.head == subject]
 
-            if len(compound):
-                sent_obj.subj = SentenceComp(compound[0].text + ' ' + subject.text, subject)
-            else:
-                sent_obj.subj = SentenceComp(subject.text, subject)
-
-            if subject.head.dep_ == 'ROOT':
-                if subject.head.pos_ == 'VERB':
-                    verb = subject.head
-                else:
-                    if subject.head.pos_ == 'AUX':
-                        main_verb = [token for token in sent if token.head == subject.head and token.pos_ == 'VERB']
-                        if len(main_verb):
-                            verb = main_verb[0]
-                        else:
-                            verb = subject.head
+        verb_conj = []
+        direct_objs = [obj for obj in objects if obj.dep_ == 'dobj']  # direct objects
+        for obj in direct_objs:
+            verb = obj.head
+            verb_conj += verb.conjuncts
+            subj_of_verb = [subj for subj in subjects if subj.head == verb]
+            if len(subj_of_verb) > 0:
+                sent_obj = Sentence()
+                sent_obj.obj = get_compound_component(obj)
                 sent_obj.verb = SentenceComp(verb.text, verb)
-                prep_found = [token for token in sent if token.pos_ == 'ADP' and token.head == verb]
-                if len(prep_found) > 0:
-                    prep = prep_found[0]
-                    sent_obj.verb.text += ' ' + prep.text
-
-                for obj in objects:
-                    sent_obj.obj = SentenceComp(obj.text, obj)
-            if sent_obj.obj != '' and sent_obj.subj != '' and sent_obj.verb != '':
+                sent_obj.subj = get_compound_component(subj_of_verb[0])
                 found_sent_objects.append(sent_obj)
-            conjs = [token for token in sent if token.dep_ == 'conj']
-            for conj in conjs:
-                new_obj = Sentence(sent_obj.subj, sent_obj.verb, sent_obj.obj)
-                compound = [token for token in sent if token.dep_ in self.compound_tags and token.head == conj]
-                comp = ''
-                if len(compound):
-                    comp = compound[0].text + ' '
+                get_obj_conj_components(obj, sent_obj)
 
-                if conj.head.dep_ in self.subject_tags:
-                    new_obj.subj = SentenceComp(comp + conj.text, conj)
-                else:  # objects
-                    new_obj.obj = SentenceComp(comp + conj.text, conj)
-                if new_obj.obj != '' and new_obj.subj != '' and new_obj.verb != '':
-                    found_sent_objects.append(new_obj)
+        prep_objs = [obj for obj in objects if obj.dep_ == 'pobj']  # preposition objects
 
+        for obj in prep_objs:
+            prep = obj.head
+            verb_comp = [prep]
+            token = prep
+
+            while token.dep_ != 'ROOT':
+                if token.head not in token.conjuncts:
+                    if token.head.pos_ == 'VERB':
+                        verb_comp.append(token.head)
+                else:
+                    verb_conj += token.conjuncts
+                    break
+                token = token.head
+            prep_verb = next(v for v in verb_comp if v.pos_ == 'VERB')
+            prep_verb_text = " ".join([v.text for v in verb_comp[::-1]])
+            subj_of_verb = [subj for subj in subjects if subj.head == verb_comp[-1] or subj.head in prep_verb.conjuncts]
+
+            if len(subj_of_verb) > 0:
+                sent_obj = Sentence()
+                sent_obj.obj = get_compound_component(obj)
+                sent_obj.verb = SentenceComp(prep_verb_text, prep_verb)
+                sent_obj.subj = get_compound_component(subj_of_verb[0])
+                found_sent_objects.append(sent_obj)
+                get_obj_conj_components(obj, sent_obj)
+
+        for subj in subjects:
+            for conj in subj.conjuncts:
+                get_subj_conj_components(conj, subj, found_sent_objects)
+
+        add_verb_conjucts(verb_conj, found_sent_objects)
+       
         return found_sent_objects
 
     def get_sent_components(self):
