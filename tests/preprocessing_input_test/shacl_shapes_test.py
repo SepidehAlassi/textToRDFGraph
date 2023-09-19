@@ -3,8 +3,8 @@ import unittest
 from pyshacl import validate
 
 data_graph = os.path.join(os.path.dirname(__file__), '..', '..', 'dh2023', 'dh2023_graph.ttl')
-shacl_graph = os.path.join(os.path.dirname(__file__), '..', '..', 'inputs', 'example_shacl.ttl')
-ont_graph = os.path.join(os.path.dirname(__file__), '..', '..', 'inputs', 'example_onto.ttl')
+shacl_graph = os.path.join(os.path.dirname(__file__), '..', '..', 'nlpGraph_shacl.ttl')
+ont_graph = os.path.join(os.path.dirname(__file__), '..', '..', 'nlpGraph_onto.ttl')
 
 
 class ShaclVerificationTest(unittest.TestCase):
@@ -24,7 +24,6 @@ class ShaclVerificationTest(unittest.TestCase):
     def test_location_geonameID(self):
         data_graph = """
         @prefix : <http://www.example.com/resource/> .
-        @prefix ex: <http://www.example.com/ontology/> .
         @prefix nlpg: <http://www.NLPGraph.com/ontology/> .
         @prefix owl: <http://www.w3.org/2002/07/owl#> .
         @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
@@ -32,7 +31,6 @@ class ShaclVerificationTest(unittest.TestCase):
 
         :3031582 a nlpg:Location ;
                 nlpg:name "Bordeaux"@en ;
-                ex:population 2.59809e+05 ;
                 owl:sameAs "http://www.wikidata.org/entity/Q1479"^^xsd:anyURI .
         """
 
@@ -85,8 +83,7 @@ class ShaclVerificationTest(unittest.TestCase):
 
         :2657895 a nlpg:Location ;
             nlpg:geoNameID "2657895"^^xsd:string ;
-            nlpg:name "زوریخ"@fr ;
-            ex:population 1.520968e+06 ;
+            nlpg:name "bale"@fr ;
             owl:sameAs "http://www.wikidata.org/entity/Q11943"^^xsd:anyURI .
         """
 
