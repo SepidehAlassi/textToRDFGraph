@@ -4,7 +4,7 @@
 
 ## Pipeline:
 
-![image](https://github.com/SepidehAlassi/textToRDFGraph/assets/8567642/89c6a09c-08cd-438d-bd0d-d2bdc80d4baa)
+![image](assets/pipeline.png)
 
 The pipeline extracts the named entities and the relations between them from texts to augment a knowledge graph. The pipeline focuses on extracting and linking three types of entries from unstructured texts in different languages: locations, persons, and their relations. Based on the language of the input text, the pipeline will be initialized with a pre-trained statistical language model. Based on the input ontology, the pipeline will extract information from the input texts in different languages and will construct the output graph, that is an RDF-star-based graph with the source of the extracted information added to the edges of the graph.
 
