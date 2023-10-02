@@ -32,11 +32,11 @@ class CustomOntoTest(unittest.TestCase):
         props = get_required_wiki_props_from_ontology(onto_graph=onto_graph,
                                                       shapes_graph=shapes_graph,
                                                       entity_type="Location")
-        expected_dict = {'geoName': {'wikidata': 'wdt:P1566', 'prop_QName': 'nlpg:geoName'},
-                         'population': {'wikidata': 'wdt:P1082', 'prop_QName': 'ex:population'}
+        expected_dict = {'geoNameID': {'wikidata': 'wdt:P1566', 'prop_QName': 'nlpg:geoNameID', 'optional': False},
+                         'population': {'wikidata': 'wdt:P1082', 'prop_QName': 'ex:population', 'optional': True}
                          }
 
-        self.assertEqual(props, expected_dict)
+        self.assertEqual(expected_dict, props)
 
     def test_getting_wiki_person_properties(self):
         props = get_required_wiki_props_from_ontology(onto_graph=onto_graph,
@@ -49,7 +49,7 @@ class CustomOntoTest(unittest.TestCase):
                          'birthDate': {'wikidata': 'wdt:P569', 'prop_QName': 'ex:birthDate', 'optional': False},
                          'deathDate': {'wikidata': 'wdt:P570', 'prop_QName': 'ex:deathDate', 'optional': True},
                          }
-        self.assertEqual(props, expected_dict)
+        self.assertEqual(expected_dict, props)
 
     def test_getting_wiki_loc_properties(self):
         props = get_required_wiki_props_from_ontology(onto_graph=onto_graph,
@@ -58,7 +58,7 @@ class CustomOntoTest(unittest.TestCase):
         expected_dict = {'geoNameID': {'wikidata': 'wdt:P1566', 'prop_QName': "nlpg:geoNameID", 'optional': False},
                          'population': {'wikidata': 'wdt:P1082', 'prop_QName': "ex:population", 'optional': True}
                          }
-        self.assertEqual(props, expected_dict)
+        self.assertEqual(expected_dict, props)
 
     def test_person_query(self):
         wiki_props = get_required_wiki_props_from_ontology(onto_graph=onto_graph,
