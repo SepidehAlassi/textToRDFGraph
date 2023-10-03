@@ -6,9 +6,23 @@ import os
 import time
 
 
-def pipeline(text_path, ontology_path='', shacl_path='', project_name='my_project'):
+def pipeline(data_path, ontology_path='', shacl_path='', project_name='my_project'):
+    if os.path.isdir(data_path):
+        pipeline_multiple(dir_path=data_path,
+                          ontology_path=ontology_path,
+                          shacl_path=shacl_path,
+                          project_name=project_name)
+    else:
+        pipeline_single(text_path=data_path,
+                        ontology_path=ontology_path,
+                        shacl_path=shacl_path,
+                        project_name=project_name)
+
+
+def pipeline_single(text_path, ontology_path, shacl_path, project_name):
     parser_type = input('NER with spaCy or flair?').lower()
     entities_dict = {'Locations': {}, 'Persons': {}}
+
     inputs = preprocess_input(text_path=text_path,
                               onto_path=ontology_path,
                               shacl_path=shacl_path,
@@ -26,7 +40,7 @@ def pipeline(text_path, ontology_path='', shacl_path='', project_name='my_projec
     print('End of stage 1!')
     if inputs.lang == 'en':
         stage2(inputs=inputs,
-               entities_json=os.path.join(inputs.project_name, inputs.project_name+'_entities.json'))
+               entities_json=os.path.join(inputs.project_name, inputs.project_name + '_entities.json'))
     print('End of stage 2!')
 
 
@@ -64,13 +78,12 @@ def pipeline_multiple(dir_path, ontology_path, shacl_path, project_name):
 if __name__ == '__main__':
     working_dir = os.getcwd()
     text_path = os.path.join(working_dir, 'inputs', 'test_data', 'dh2023', 'de_swiss.txt')
-    ontology_path = os.path.join(working_dir, 'inputs', 'nlpGraph_onto.ttl')
+    ontology_path = os.path.join(working_dir, 'inputs', 'example_onto.ttl')
+    shacl_path = os.path.join(working_dir, 'inputs', 'example_shacl.ttl')
     project_name = 'dh2023'
+    data_folder = os.path.join(working_dir, 'inputs', 'test_data', 'dh2023')
 
-    pipeline(text_path=text_path,
-             project_name='testing')
-    # data_folder = os.path.join(working_dir, 'inputs', 'test_data', 'dh2023')
-    #
-    # pipeline_multiple(dir_path=data_folder,
-    #                   ontology_path=ontology_path,
-    #                   project_name=project_name)
+    pipeline(data_path=data_folder,
+             ontology_path=ontology_path,
+             shacl_path=shacl_path,
+             project_name=project_name)

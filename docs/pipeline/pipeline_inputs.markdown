@@ -7,14 +7,14 @@ exclude: true
 
 To start the pipeline, it needs the path to the text file, or the directory containing the text files, as well as a name for the project.
 ```
-pipeline(text_path=text_path)
+pipeline(data_path=text_path)
 ```
 
 By default, the pipeline creates an output directory in the working directory `my_project` and stores all pipeline results in it. 
 Other names can be given through `project_name` parameter.
 
 ```
-pipeline(text_path=text_path, project_name='travel_records')
+pipeline(data_path=text_path, project_name='travel_records')
 ```
 
 By default, the pipeline uses the basis ontology `nlpGraph_onto.ttl` to generate the graph and the SHACL shapes given 
@@ -24,7 +24,7 @@ The user can provide a custom ontology and its corresponding SHACL shapes as inp
 The path of the ontology and SHACL shapes turtle files must be given as the input parameters when starting the pipeline.
 
 ```
-pipeline(text_path=text_path,
+pipeline(data_path=text_path,
          ontology_path=ontology_path,
          shacl_path=shacl_path,
          project_name=project_name)
