@@ -4,7 +4,7 @@
 
 layout: home
 ---
-![image](assets/pipeline.png)
+![image](./assets/pipeline.png)
 
 ## An automatic pipeline to construct an RDF-star graph from texts
 
@@ -59,7 +59,7 @@ queries by reducing the query time. RDF-star allows a triple to represent metada
 using this other triple as its subject or object (Hartig 2017). Using RDF-star, we can easily attach metadata to the 
 edges of the knowledge graph, as shown in the following figure:
 
-![RDF-star example](assets/example_star.png)
+![RDF-star example](./assets/example_star.png)
 
 Thus, the NLP pipeline developed for this project will not only extract information from texts to construct a knowledge 
 graph, but it will also add the source of information to the edges of the graph, which will be essential for citation 
@@ -73,12 +73,14 @@ ontologies and implementing tools based on SPARQL-star to analyze graphs.
 
 Alassi (2023) presented the early stage of this NLP pipeline in a peer-reviewed proceeding of [DH2023](https://dh2023.adho.org/) that received supportive 
 reviews, e.g. (score: 98 out of 100): 
+
 >The author proposes to create RDF-star-based open research data from textual contents using automated text extraction 
 > methods. This work is highly relevant [to DH field], as it enables the machine-readable processing of textual contents 
 > using standardized vocabularies and semantic web technologies.
 
 Similarly, the paper containing the preliminary idea received positive feedback from reviewers of [DH2022](https://dh2022.adho.org/); 
 for example: (review score: 100 out of 100)
+
 > This contribution can play an important role in bringing the arguably more complicated structure of humanities' 
 > hermeneutics into dialogue with methods and technologies for asserting facts. RDF* and SPARQL* have been around as 
 > technologies for a while, but there is a lack of expositions of how to apply them in the digital humanities and of 
