@@ -6,7 +6,7 @@ import os
 import time
 
 
-def pipeline(text_path, ontology_path='', shacl_path='', project_name='test'):
+def pipeline(text_path, ontology_path='', shacl_path='', project_name='my_project'):
     parser_type = input('NER with spaCy or flair?').lower()
     entities_dict = {'Locations': {}, 'Persons': {}}
     inputs = preprocess_input(text_path=text_path,

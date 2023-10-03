@@ -5,11 +5,30 @@ permalink: /pipeline/inputs/
 exclude: true
 ---
 
-By default, the pipeline uses the ontology given in `nlpGraph_onto.ttl` to generate the graph and the SHACL shapes given 
+To start the pipeline, it needs the path to the text file, or the directory containing the text files, as well as a name for the project.
+```
+pipeline(text_path=text_path)
+```
+
+By default, the pipeline creates an output directory in the working directory `my_project` and stores all pipeline results in it. 
+Other names can be given through `project_name` parameter.
+
+```
+pipeline(text_path=text_path, project_name='travel_records')
+```
+
+By default, the pipeline uses the basis ontology `nlpGraph_onto.ttl` to generate the graph and the SHACL shapes given 
 in `nlpGraph_shacl.ttl` to validate the constructed graph. 
 
 The user can provide a custom ontology and its corresponding SHACL shapes as inputs to the pipeline serialized in Turtle format.
 The path of the ontology and SHACL shapes turtle files must be given as the input parameters when starting the pipeline.
+
+```
+pipeline(text_path=text_path,
+         ontology_path=ontology_path,
+         shacl_path=shacl_path,
+         project_name=project_name)
+```
 
 For examples of custom ontology and custom SHACL shapes graph, see files `example_onto.ttl` and `example_shacl.ttl` in 
 `inputs` directory of the code base.
