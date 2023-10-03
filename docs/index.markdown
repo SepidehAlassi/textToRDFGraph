@@ -4,7 +4,7 @@
 
 layout: home
 ---
-![image](./assets/pipeline.png)
+![image](pics/pipeline.png)
 
 ## An automatic pipeline to construct an RDF-star graph from texts
 
@@ -59,7 +59,7 @@ queries by reducing the query time. RDF-star allows a triple to represent metada
 using this other triple as its subject or object (Hartig 2017). Using RDF-star, we can easily attach metadata to the 
 edges of the knowledge graph, as shown in the following figure:
 
-![RDF-star example](./assets/example_star.png)
+![RDF-star example](pics/example_star.png)
 
 Thus, the NLP pipeline developed for this project will not only extract information from texts to construct a knowledge 
 graph, but it will also add the source of information to the edges of the graph, which will be essential for citation 

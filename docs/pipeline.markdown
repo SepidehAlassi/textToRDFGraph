@@ -4,7 +4,7 @@ title: Pipeline
 permalink: /pipeline/
 ---
 
-![image](./assets/pipeline.png)
+![image](pics/pipeline.png)
 
 The pipeline extracts the named entities and the relations between them from texts to augment a knowledge graph. 
 The pipeline focuses on extracting and linking three types of entries from unstructured texts in different languages: 
