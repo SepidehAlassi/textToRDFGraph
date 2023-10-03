@@ -1,6 +1,6 @@
 # textToRDFGraph
 
-![image](docs/assets/pipeline.png)
+![image](docs/pics/pipeline.png)
 
 See the entire project description and pipeline documentation [here](https://sepidehalassi.github.io/textToRDFGraph/)!
 
