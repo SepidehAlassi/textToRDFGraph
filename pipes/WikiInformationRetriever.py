@@ -2,10 +2,14 @@ import rdflib
 from qwikidata.sparql import return_sparql_query_results
 from pipes.PreProcessor import Input
 from pipes.util.sparql_tools import *
+from Entitiy import PersonEntity
 import time
 import os
+import uuid
 
 text_attributes = ['text', 'label', 'start_char', 'end_char', 'document', 'language', '__len__']
+female_address = ['Madame', 'Mme', 'Mme.', 'Ms', 'Mrs', 'Miss', 'Frau', 'Fr', 'Mademoiselle', 'Mlle']
+male_address = ['Mr', 'Mons', 'Herr', 'Hr', 'Sir', 'Monsieur']
 
 
 def retrieve_wiki_info(found_locations, found_persons, existing_entities, inputs: Input):
@@ -113,7 +117,7 @@ def retrieve_wiki_info_person(name: str, lang: str, onto_graph: rdflib.Graph, sh
 
     wiki_info = {}
     if len(results) == 0:
-        msg = "No records found for person " + name + " in language " + lang + "."
+        msg = "No records found for person " + name + " in language " + lang + " on wikidata."
         print(msg)
         pass
     else:
@@ -180,6 +184,35 @@ def add_wiki_info_location(found_locations, inputs: Input):
     return found_locations, wiki_props
 
 
+def check_vicinity(person: PersonEntity, found_persons: dict, text: str):
+    before_text = text[:person.start_char]
+    if len(before_text):
+        words = before_text.split()
+        last_word = words.pop().strip('.')
+        if last_word in female_address:
+            person.gender = 'female'
+        elif last_word in male_address:
+            person.gender = 'male'
+
+    before_pers = [pers for pers in found_persons if pers.end_char < person.start_char and person.text in pers.text]
+    if len(person.gender):
+        before_pers = [pers for pers in before_pers if pers.gender == person.gender]
+    if len(before_pers) > 0:
+        sorted_list = sorted(before_pers, key=lambda x: x.start_char)
+        reference_pers = sorted_list.pop()
+        attrib_vals = vars(reference_pers)
+        for attrib, val in attrib_vals.items():
+            if attrib not in text_attributes:
+                setattr(person, attrib, val)
+
+    else:  # non_referenced person which does not have wiki record
+        person.gnd = uuid.uuid4()
+        name = person.text.split()
+        if len(name) == 2:
+            person.givenName = name[0]
+            person.familyName = name[1]
+
+
 def add_wiki_info_person(found_persons, inputs: Input):
     """
     Add information retrieved from wikidate to person entities
@@ -205,6 +238,8 @@ def add_wiki_info_person(found_persons, inputs: Input):
                                                               shapes_graph=inputs.shacl_graph)
             for key, val in wiki_info.items():
                 setattr(pers, key, val)
+            if len(wiki_info) == 0:
+                check_vicinity(pers, found_persons, inputs.text)
         if counter == 8:
             time.sleep(90)
             counter = 0
@@ -238,9 +273,7 @@ def unify_persons(found_persons, entities_dict):
     :return: updated dictionary of extracted entities
     """
     for pers in found_persons:
-        if pers.gnd == '':
-            pass
-        elif pers.gnd not in entities_dict['Persons'].keys():
+        if pers.gnd not in entities_dict['Persons'].keys():
             entities_dict['Persons'][pers.gnd] = [pers]
         else:
             entities_dict['Persons'][pers.gnd].append(pers)
