@@ -35,19 +35,17 @@ def stage1(parser, existing_entities, inputs):
 
 if __name__ == '__main__':
     working_dir = os.getcwd()
-    text_path = os.path.join(working_dir, 'inputs', 'test_data', 'dh2023', 'en_swiss.txt')
-    onto_path = os.path.join(working_dir, 'inputs', 'example_onto.ttl')
-    shacl_path = os.path.join(working_dir, 'inputs', 'example_shacl.ttl')
-    project_name = 'dh2023'
+    text_path = os.path.join(working_dir, 'inputs', 'test_data', 'jacob_bernoulli', 'texts', 'jb_basel_genf_en.txt')
+    # onto_path = os.path.join(working_dir, 'inputs', 'example_onto.ttl')
+    # shacl_path = os.path.join(working_dir, 'inputs', 'example_shacl.ttl')
+    project_name = 'jacob_bernoulli'
     inputs = preprocess_input(text_path=text_path,
-                              onto_path=onto_path,
-                              shacl_path=shacl_path,
                               project_name=project_name)
 
     if not os.path.exists(project_name):
         os.mkdir(project_name)
     entities_dict = {'Locations': {}, 'Persons': {}}
-    stage1(parser='spacy',
+    stage1(parser='flair',
            existing_entities=entities_dict,
            inputs=inputs)
     print('Stage1 done')

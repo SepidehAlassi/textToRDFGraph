@@ -2,7 +2,7 @@ from pipes.util.NLP_Parser.spacyParser import SpacyParser
 from pipes.NamedEntityResognizer import SpacyNERParser
 import os
 import json
-
+from constants import *
 
 class SentenceComp:
     def __init__(self, text, token, ent={}):
@@ -35,7 +35,11 @@ class DependencyParser:
         def get_compound_component(comp):
             compound = [token for token in sent if token.dep_ in self.compound_tags and token.head == comp]
             if len(compound):
-                sent_comp = SentenceComp(compound[0].text + ' ' + comp.text, comp)
+                compound_part = compound.pop()
+                if compound_part.text not in FEMALE_ADDRESS_WORDS + MALE_ADDRESS_WORDS:
+                    sent_comp = SentenceComp(compound_part.text + ' ' + comp.text, comp)
+                else:
+                    sent_comp = SentenceComp(comp.text, comp)
             else:
                 sent_comp = SentenceComp(comp.text, comp)
             return sent_comp
@@ -103,7 +107,10 @@ class DependencyParser:
                     verb_conj += token.conjuncts
                     break
                 token = token.head
-            prep_verb = next(v for v in verb_comp if v.pos_ == 'VERB')
+            else:
+                if token.pos_ == 'AUX':
+                    verb_comp.append(token)
+            prep_verb = next(v for v in verb_comp if v.pos_ == 'VERB' or v.pos_=='AUX')
             prep_verb_text = " ".join([v.text for v in verb_comp[::-1]])
             subj_of_verb = [subj for subj in subjects if subj.head == verb_comp[-1] or subj.head in prep_verb.conjuncts]
 

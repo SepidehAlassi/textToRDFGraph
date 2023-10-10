@@ -44,7 +44,11 @@ def add_new_edges(links_to_add, inputs: Input):
     graph_file_path = os.path.join(inputs.project_name, inputs.project_name + '_graph.ttl')
     graph.parse(graph_file_path, format='ttl')
     namespaces = dict(graph.namespaces())
-    DEFAULT = Namespace(namespaces[''])
+    if '' in namespaces.keys():
+        DEFAULT = Namespace(namespaces[''])
+    else:
+        DEFAULT = Namespace(namespaces['nlpg'])
+
     NLPG = Namespace(namespaces['nlpg'])
     used_namespaces = {}
     star_statements = ""
