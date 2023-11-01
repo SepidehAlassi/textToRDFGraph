@@ -26,6 +26,50 @@ class DependencyParser:
         self.text = text
         self.lang = lang
 
+    def get_sent_components(self):
+        """
+        Get the components of sentences in the text
+        :return: a dictionary with sentence index and components found in that sentence describing relation.
+        """
+
+        def get_sentences(text):
+            """
+            This function breaks the text into sentences.
+            :param text: input text
+            :return: list of sentences
+            """
+            checkString = lambda s: any(c.isalpha() for c in s) or any(c.isdigit() for c in s)
+            sents = [elem + '.' for elem in text.split('.\n') if checkString(elem)]
+            return sents
+
+        sentences = get_sentences(self.text)
+        sent_components = {}
+        for idx, sentence in enumerate(sentences):
+            sent = SpacyParser().spacy_parse(text=sentence, lang=self.lang)
+            sent_comp = self.parse_sentence(sent)
+            if len(sent_comp):
+                sent_components[idx] = sent_comp
+        return sent_components
+
+    def parse_sentence(self, sent):
+        pass
+
+    def get_subjs_and_objs(self, sent):
+        ner_parser = SpacyNERParser()
+        subjects = [token for token in sent if token.dep_ in self.subject_tags and (
+                token.ent_type_ in ner_parser.personLabels or token.ent_type_ in ner_parser.locationLabels)]
+        objects = [sent_comp for sent_comp in sent if sent_comp.dep_ in self.object_tags and (
+                sent_comp.ent_type_ in ner_parser.personLabels or sent_comp.ent_type_ in ner_parser.locationLabels)]
+        return subjects, objects
+
+
+class DependencyParserEN(DependencyParser):
+    def __init__(self, text, lang):
+        super().__init__(text, lang)
+        self.compound_tags = ['compound', 'pnc']
+        self.subject_tags = ['nsubj', 'nsubjpass']
+        self.object_tags = ['pobj', 'dobj', 'iobj']
+
     def get_compound_component(self, sent, comp, compound_tags):
         compound = [token for token in sent if token.dep_ in compound_tags and token.head == comp]
         if len(compound):
@@ -65,42 +109,6 @@ class DependencyParser:
                 sent.subj = item.subj
                 found_items.append(sent)
 
-    def get_sent_components(self):
-        """
-        Get the components of sentences in the text
-        :return: a dictionary with sentence index and components found in that sentence describing relation.
-        """
-
-        def get_sentences(text):
-            """
-            This function breaks the text into sentences.
-            :param text: input text
-            :return: list of sentences
-            """
-            checkString = lambda s: any(c.isalpha() for c in s) or any(c.isdigit() for c in s)
-            sents = [elem + '.' for elem in text.split('.\n') if checkString(elem)]
-            return sents
-
-        sentences = get_sentences(self.text)
-        sent_components = {}
-        for idx, sentence in enumerate(sentences):
-            sent = SpacyParser().spacy_parse(text=sentence, lang=self.lang)
-            sent_comp = self.parse_sentence(sent)
-            if len(sent_comp):
-                sent_components[idx] = sent_comp
-        return sent_components
-
-    def parse_sentence(self, sent):
-        pass
-
-
-class DependencyParserEN(DependencyParser):
-    def __init__(self, text, lang):
-        super().__init__(text, lang)
-        self.compound_tags = ['compound', 'pnc']
-        self.subject_tags = ['nsubj', 'nsubjpass']
-        self.object_tags = ['pobj', 'dobj', 'iobj']
-
     def parse_sentence(self, sent):
         """
         Parse subject, verb, and object out of the sentence
@@ -108,11 +116,7 @@ class DependencyParserEN(DependencyParser):
         :return: sentence components
         """
 
-        ner_parser = SpacyNERParser()
-        subjects = [token for token in sent if token.dep_ in self.subject_tags and (
-                token.ent_type_ in ner_parser.personLabels or token.ent_type_ in ner_parser.locationLabels)]
-        objects = [sent_comp for sent_comp in sent if sent_comp.dep_ in self.object_tags and (
-                sent_comp.ent_type_ in ner_parser.personLabels or sent_comp.ent_type_ in ner_parser.locationLabels)]
+        subjects, objects = self.get_subjs_and_objs(sent)
         found_sent_objects = []
         if len(subjects) == 0 or len(objects) == 0:
             return found_sent_objects
@@ -175,7 +179,9 @@ class DependencyParserDE(DependencyParser):
         super().__init__(text, lang)
         self.subject_tags = ['sb']
         self.object_tags = ['oa', 'op']
-        self.compund_tags = []
+        self.compound_tags = ['pnc']
+
+
 
     def parse_sentence(self, sent):
         """
@@ -183,11 +189,8 @@ class DependencyParserDE(DependencyParser):
         :param sent: input sentence
         :return: sentence components
         """
-        ner_parser = SpacyNERParser()
-        subjects = [token for token in sent if token.dep_ in self.subject_tags and (
-                token.ent_type_ in ner_parser.personLabels or token.ent_type_ in ner_parser.locationLabels)]
-        objects = [token for token in sent if token.dep_ in self.object_tags and (
-                token.ent_type_ in ner_parser.personLabels or token.ent_type_ in ner_parser.locationLabels)]
+
+        subjects, objects = self.get_subjs_and_objs(sent)
         found_sent_objects = []
         if len(subjects) == 0 or len(objects) == 0:
             return found_sent_objects
@@ -298,7 +301,7 @@ def parse_dependencies(text, lang, entities):
 
 if __name__ == '__main__':
     test_sent_en = 'Jacob Bernoulli however only lived in Basel. He traveled though to Geneva, Lyon, Bordeaux, Amsterdam, and London.'
-    path = os.path.join(os.getcwd(), '..','jacob_bernoulli', 'jacob_bernoulli' + '_entities.json')
+    path = os.path.join(os.getcwd(), '..', 'jacob_bernoulli', 'jacob_bernoulli' + '_entities.json')
     entities = entities_fromJson(path)
 
     found_comps, _ = parse_dependencies(test_sent_en, 'en', entities)
