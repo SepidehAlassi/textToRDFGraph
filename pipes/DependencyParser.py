@@ -203,6 +203,22 @@ class DependencyParserDE(DependencyParser):
             pass
         return found_subjects
 
+    def get_sent_verb(self, sent):
+        verbs = [token for token in sent if token.pos_ == 'VERB']
+        found_verbs=[]
+        for verb in verbs:
+            head = verb.head
+            if head.dep_ == 'AUX':
+                text = head.text + ' ' + verb.text
+            else:
+                text = verb.text
+            adp_props = [token for token in sent if token.head == verb and token.pos_ == 'ADP']
+            for adp_prop in adp_props:
+                text = text + ' ' + adp_prop.text
+            found_verbs.append(SentenceComp(text, verb))
+        return found_verbs
+
+
     def parse_sentence(self, sent):
         """
         Parse subject, verb, and object out of the sentence
@@ -215,8 +231,15 @@ class DependencyParserDE(DependencyParser):
         if len(subjects) == 0 or len(objects) == 0:
             return found_sent_objects
 
+        subjects = self.get_compound_subjects(sent)  # get nominatives from the sentence
+        verbs = self.get_sent_verb(sent)
         verb_conj = []
         direct_objs = [obj for obj in objects if obj.dep_ == 'oa']  # direct objects
+
+
+
+
+
         for obj in direct_objs:
             verb = obj.head
             verb_conj += verb.conjuncts

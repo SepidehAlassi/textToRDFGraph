@@ -4,12 +4,19 @@ from pipes.util.NLP_Parser.spacyParser import SpacyParser
 
 
 class MyTestCase(unittest.TestCase):
-    def test_de_simple(self):
+    def test_de_simple_subj(self):
         text = 'Sepideh liebt Basel.'
         sent = SpacyParser().spacy_parse(text=text, lang='de')
         parser = DependencyParserDE(text, 'de')
         sent_comp = parser.get_compound_subjects(sent)
         self.assertEqual(sent_comp[0].text, 'Sepideh')
+
+    def test_de_simple_verb(self):
+        text = 'Sepideh liebt Basel.'
+        sent = SpacyParser().spacy_parse(text=text, lang='de')
+        parser = DependencyParserDE(text, 'de')
+        verbs = parser.get_sent_verb(sent)
+        self.assertEqual(verbs[0].text, 'liebt')
 
     def test_compound_subject_german_name(self):
         text = 'Albert Einstein wohnte in Zürich.'
@@ -18,12 +25,26 @@ class MyTestCase(unittest.TestCase):
         sent_comp = parser.get_compound_subjects(sent)
         self.assertEqual(sent_comp[0].text, 'Albert Einstein')
 
+    def test_compound_subject_german_name(self):
+        text = 'Albert Einstein wohnte in Zürich.'
+        sent = SpacyParser().spacy_parse(text=text, lang='de')
+        parser = DependencyParserDE(text, 'de')
+        sent_comp = parser.get_sent_verb(sent)
+        self.assertEqual(sent_comp[0].text, 'wohnte in')
+
     def test_compound_subject_nongerman_name(self):
-        text = 'Sepideh Alassi arbeitet in Basel.'
+        text = 'Sepideh Alassi hat in Basel gearbeitet.'
         sent = SpacyParser().spacy_parse(text=text, lang='de')
         parser = DependencyParserDE(text, 'de')
         sent_comp = parser.get_compound_subjects(sent)
         self.assertEqual(sent_comp[0].text, 'Sepideh Alassi')
+
+    def test_complext_verb(self):
+        text = 'Sepideh Alassi hat in Basel gearbeitet.'
+        sent = SpacyParser().spacy_parse(text=text, lang='de')
+        parser = DependencyParserDE(text, 'de')
+        sent_comp = parser.get_sent_verb(sent)
+        self.assertEqual(sent_comp[0].text, 'hat gearbeitet in')
 
     def test_compound_subject_nongerman_name(self):
         text = 'Sepideh Alassi und Christian Kleinboelting arbeiten in Basel.'
