@@ -170,7 +170,7 @@ class DependencyParserEN(DependencyParser):
         return found_sent_objects
 
 
-class DependencyParserDE:
+class DependencyParserDE(DependencyParser):
     def __init__(self, text, lang):
         super().__init__(text, lang)
         self.subject_tags = ['sb']
