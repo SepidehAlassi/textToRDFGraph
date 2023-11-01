@@ -12,7 +12,7 @@ def stage2(inputs, entities_json):
     entities = entities_fromJson(entities_json)
 
     # dependency parsing pipe
-    sentence_comps, pers_stack = parse_dependencies(text=inputs.text, project_name=inputs.project_name,
+    sentence_comps, pers_stack = parse_dependencies(text=inputs.text,
                                                     lang=inputs.lang, entities=entities)
 
     # Pronoun resolution pipe

@@ -32,12 +32,12 @@ def parse_shacl(file):
 
 
 class Input:
-    def __init__(self, text, onto_path='', shacl_path='', project_name='test'):
+    def __init__(self, text, onto_path='', shacl_path='', project_name='test_output'):
         if os.path.isfile(text):
             self.text, self.doc_name = read_text(text)
         else:
             self.text = text
-            self.doc_name = 'test'
+            self.doc_name = 'test_output'
         self.lang = detect_lang(self.text)
         self.onto_graph = parse_ontology(onto_path)
         self.shacl_graph = parse_shacl(shacl_path)
@@ -70,7 +70,7 @@ def read_text(text_path):
     return text, document_name
 
 
-def preprocess_input(text_path, onto_path='', shacl_path='', project_name='test'):
+def preprocess_input(text_path, onto_path='', shacl_path='', project_name='test_output'):
     """
     Preprocess the inputs of the pipeline into an object
     :param text_path: path to the input text
