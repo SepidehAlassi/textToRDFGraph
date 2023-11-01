@@ -181,7 +181,27 @@ class DependencyParserDE(DependencyParser):
         self.object_tags = ['oa', 'op']
         self.compound_tags = ['pnc']
 
+    def get_compound_subjects(self, sent):
+        found_subjects = []
+        nominatives = [token for token in sent if 'Case' in token.morph.to_dict().keys() and token.morph.to_dict()['Case'] == 'Nom']
+        pnc_tokens = [token for token in nominatives if token.dep_ in self.compound_tags]
+        for pnc in pnc_tokens:
+            head = pnc.head
+            found_subjects.append(SentenceComp(pnc.text + ' ' + head.text, head))
+            nominatives.remove(pnc)
+            if head in nominatives:
+                nominatives.remove(head)
 
+        if len(nominatives) > 1:
+            nominatives = sorted(nominatives, key=lambda x: x.idx)
+            for index, token in enumerate(nominatives):
+                if token.dep_ == 'ROOT':
+                    found_subjects.append(SentenceComp(token.text + ' ' + nominatives[index+1].text, nominatives[index+1]))
+        elif len(nominatives) == 1:
+            found_subjects.append(SentenceComp(nominatives[0].text, nominatives[0]))
+        else:
+            pass
+        return found_subjects
 
     def parse_sentence(self, sent):
         """
