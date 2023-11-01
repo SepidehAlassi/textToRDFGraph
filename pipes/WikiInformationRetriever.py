@@ -1,15 +1,14 @@
-import rdflib
 from qwikidata.sparql import return_sparql_query_results
+
+from constants import FEMALE_ADDRESS_WORDS, MALE_ADDRESS_WORDS
 from pipes.PreProcessor import Input
 from pipes.util.sparql_tools import *
-from Entitiy import PersonEntity
+from Entitiy import *
 import time
 import os
 import uuid
 
 text_attributes = ['text', 'label', 'start_char', 'end_char', 'document', 'language', '__len__']
-female_address = ['Madame', 'Mme', 'Mme.', 'Ms', 'Mrs', 'Miss', 'Frau', 'Fr', 'Mademoiselle', 'Mlle']
-male_address = ['Mr', 'Mons', 'Herr', 'Hr', 'Sir', 'Monsieur']
 
 
 def retrieve_wiki_info(found_locations, found_persons, existing_entities, inputs: Input):
@@ -92,7 +91,6 @@ def retrieve_wiki_info_location(name: str, lang: str, onto_graph: rdflib.Graph, 
                 wiki_info['wiki_id'] = record['place']['value']
             else:
                 wiki_info[key.replace('Label', "")] = record[key]['value']
-
     return wiki_info, wiki_props
 
 
@@ -130,7 +128,6 @@ def retrieve_wiki_info_person(name: str, lang: str, onto_graph: rdflib.Graph, sh
                 wiki_info['wiki_id'] = record['person']['value']
             else:
                 wiki_info[key.replace('Label', "")] = record[key]['value']
-
     return wiki_info, wiki_props
 
 
@@ -149,6 +146,18 @@ def make_wiki_query(sparql_statement):
         print(sparql_statement)
 
     return results
+
+
+def find_matching_entity(elem, collection):
+    matching_entities = [existing_elem for existing_elem in collection if existing_elem.wiki_id == '' and existing_elem.text == elem.text and hash(existing_elem) != hash(elem)]
+    if len(matching_entities):
+        matching_entity = matching_entities.pop()
+        attrib_vals = vars(matching_entity)
+        for attrib, val in attrib_vals.items():
+            if attrib not in text_attributes:
+                setattr(elem, attrib, val)
+    else:
+        elem.local_id = str(uuid.uuid4())
 
 
 def add_wiki_info_location(found_locations, inputs: Input):
@@ -174,8 +183,14 @@ def add_wiki_info_location(found_locations, inputs: Input):
                                                                 lang=loc.language,
                                                                 onto_graph=inputs.onto_graph,
                                                                 shapes_graph=inputs.shacl_graph)
+
             for key, val in wiki_info.items():
                 setattr(loc, key, val)
+            if len(wiki_info) == 0:  # no wiki record found for the location
+                find_matching_entity(loc, found_locations)
+            else:
+                loc.local_id = loc.geoNameID
+
         if counter == 8:
             time.sleep(90)
             counter = 0
@@ -189,9 +204,9 @@ def check_vicinity(person: PersonEntity, found_persons: dict, text: str):
     if len(before_text):
         words = before_text.split()
         last_word = words.pop().strip('.')
-        if last_word in female_address:
+        if last_word in FEMALE_ADDRESS_WORDS:
             person.gender = 'female'
-        elif last_word in male_address:
+        elif last_word in MALE_ADDRESS_WORDS:
             person.gender = 'male'
 
     before_pers = [pers for pers in found_persons if pers.end_char < person.start_char and person.text in pers.text]
@@ -205,8 +220,9 @@ def check_vicinity(person: PersonEntity, found_persons: dict, text: str):
             if attrib not in text_attributes:
                 setattr(person, attrib, val)
 
-    else:  # non_referenced person which does not have wiki record
-        person.gnd = uuid.uuid4()
+    else:  # person does not have wiki record and does not occur previously in the text
+        # check if there is a person with same text without wiki_id in the existing entities, if there is, get its attributes otherwise make new record with random UUI
+        find_matching_entity(person, found_persons)
         name = person.text.split()
         if len(name) == 2:
             person.givenName = name[0]
@@ -240,6 +256,9 @@ def add_wiki_info_person(found_persons, inputs: Input):
                 setattr(pers, key, val)
             if len(wiki_info) == 0:
                 check_vicinity(pers, found_persons, inputs.text)
+            else:
+                pers.local_id = pers.gnd
+
         if counter == 8:
             time.sleep(90)
             counter = 0
@@ -256,12 +275,10 @@ def unify_locations(found_locations, entities_dict):
     :return: updated dictionary of extracted entities
     """
     for loc in found_locations:
-        if loc.geoNameID == '':
-            pass
-        elif loc.geoNameID not in entities_dict['Locations'].keys():
-            entities_dict['Locations'][loc.geoNameID] = [loc]
+        if loc.local_id not in entities_dict['Locations'].keys():
+            entities_dict['Locations'][loc.local_id] = [loc]
         else:
-            entities_dict['Locations'][loc.geoNameID].append(loc)
+            entities_dict['Locations'][loc.local_id].append(loc)
     return entities_dict
 
 
@@ -273,10 +290,10 @@ def unify_persons(found_persons, entities_dict):
     :return: updated dictionary of extracted entities
     """
     for pers in found_persons:
-        if pers.gnd not in entities_dict['Persons'].keys():
-            entities_dict['Persons'][pers.gnd] = [pers]
+        if pers.local_id not in entities_dict['Persons'].keys():
+            entities_dict['Persons'][pers.local_id] = [pers]
         else:
-            entities_dict['Persons'][pers.gnd].append(pers)
+            entities_dict['Persons'][pers.local_id].append(pers)
     return entities_dict
 
 

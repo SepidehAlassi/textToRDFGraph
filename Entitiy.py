@@ -1,4 +1,6 @@
 class Entity:
+    local_id: str # local identifier of the entity, if possible geonameID or GND, otherwise random UUID
+
     def __init__(self, text, label, start_char=0, end_char=0, wiki_id="", lang="en", iri='', document=''):
         self.label = label  # named entity label: GPE, LOC, PERSON
         self.text = text  # named entity text
@@ -15,6 +17,7 @@ class GeoEntity(Entity):
                  geoname_id=""):
         super().__init__(text, label, start_char, end_char, wiki_id, lang, iri, document)
         self.geoNameID = geoname_id  # GeoName ID of the location extracted from wikidata
+        self.local_id = self.geoNameID
 
 
 class PersonEntity(Entity):
@@ -25,7 +28,8 @@ class PersonEntity(Entity):
         self.givenName = given_name  # Given name of the person extracted from wikidata
         self.familyName = family_name  # Family name of the person extracted from wikidata
         self.gender = gender
+        self.local_id = self.gnd
 
 
 if __name__ == '__main__':
-    pass
+  pass

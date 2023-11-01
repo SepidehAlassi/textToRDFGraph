@@ -31,7 +31,7 @@ class MyTestCase(unittest.TestCase):
         locations, persons = parser.extract_ne(inputs)
         found_persons, _ = add_wiki_info_person(persons, inputs)
         addressed_ref = found_persons[0]
-        self.assertTrue(addressed_ref.gnd != '')  # add assertion here
+        self.assertTrue(addressed_ref.gnd == '' and addressed_ref.local_id != '')  # add assertion here
 
 
 if __name__ == '__main__':

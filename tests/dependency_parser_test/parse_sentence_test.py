@@ -47,6 +47,13 @@ class MyTestCase(unittest.TestCase):
         found_comp = parser.parse_sentence(sent)
         self.assertEqual(4, len(found_comp))
 
+    def test_tobe_verb_in_sentence(self):
+        text = 'Mr Frey was a nobel man from Geneva.'
+        sent = SpacyParser().spacy_parse(text=text, lang='en')
+        parser = DependencyParser(text, 'en')
+        found_comp = parser.parse_sentence(sent)
+        self.assertTrue(found_comp[0].subj.text == 'Frey' and found_comp[0].obj.text == 'Geneva' and found_comp[0].verb.text == 'was from')
+
 
 if __name__ == '__main__':
     unittest.main()

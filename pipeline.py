@@ -78,9 +78,9 @@ def pipeline_multiple(dir_path, ontology_path, shacl_path, project_name):
 
 if __name__ == '__main__':
     working_dir = os.getcwd()
-    text_path = os.path.join(working_dir, 'inputs', 'test_data', 'jacob_bernoulli', 'jb_basel_genf_en.txt')
-    ontology_path = os.path.join(working_dir, 'inputs', 'example_onto.ttl')
-    shacl_path = os.path.join(working_dir, 'inputs', 'example_shacl.ttl')
+    text_path = os.path.join(working_dir, 'inputs', 'test_data', 'jacob_bernoulli', 'texts', 'jb_basel_genf_en.txt')
+    ontology_path = os.path.join(working_dir, 'inputs', 'test_data', 'jacob_bernoulli', 'input_onto.ttl')
+    shacl_path = os.path.join(working_dir, 'inputs', 'test_data', 'jacob_bernoulli', 'input_shacl.ttl')
     project_name = 'jacob_bernoulli'
     data_folder = os.path.join(working_dir, 'inputs', 'test_data', 'jacob_bernoulli')
 
