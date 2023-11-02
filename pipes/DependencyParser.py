@@ -25,6 +25,7 @@ class DependencyParser:
     def __init__(self, text, lang):
         self.text = text
         self.lang = lang
+        self.ner_parser = SpacyNERParser()
 
     def get_sent_components(self):
         """
@@ -53,14 +54,6 @@ class DependencyParser:
 
     def parse_sentence(self, sent):
         pass
-
-    def get_subjs_and_objs(self, sent):
-        ner_parser = SpacyNERParser()
-        subjects = [token for token in sent if token.dep_ in self.subject_tags and (
-                token.ent_type_ in ner_parser.personLabels or token.ent_type_ in ner_parser.locationLabels)]
-        objects = [sent_comp for sent_comp in sent if sent_comp.dep_ in self.object_tags and (
-                sent_comp.ent_type_ in ner_parser.personLabels or sent_comp.ent_type_ in ner_parser.locationLabels)]
-        return subjects, objects
 
 
 class DependencyParserEN(DependencyParser):
@@ -115,8 +108,11 @@ class DependencyParserEN(DependencyParser):
         :param sent: input sentence
         :return: sentence components
         """
+        subjects = [token for token in sent if token.dep_ in self.subject_tags and (
+                token.ent_type_ in self.ner_parser.personLabels or token.ent_type_ in self.ner_parser.locationLabels)]
+        objects = [sent_comp for sent_comp in sent if sent_comp.dep_ in self.object_tags and (
+                sent_comp.ent_type_ in self.ner_parser.personLabels or sent_comp.ent_type_ in self.ner_parser.locationLabels)]
 
-        subjects, objects = self.get_subjs_and_objs(sent)
         found_sent_objects = []
         if len(subjects) == 0 or len(objects) == 0:
             return found_sent_objects
@@ -178,10 +174,10 @@ class DependencyParserDE(DependencyParser):
     def __init__(self, text, lang):
         super().__init__(text, lang)
         self.subject_tags = ['sb']
-        self.object_tags = ['oa', 'op']
+        self.object_tags = ['oa']
         self.compound_tags = ['pnc']
 
-    def get_compound_subjects(self, sent):
+    def get_sent_subjects(self, sent):
         found_subjects = []
         nominatives = [token for token in sent if 'Case' in token.morph.to_dict().keys() and token.morph.to_dict()['Case'] == 'Nom']
         pnc_tokens = [token for token in nominatives if token.dep_ in self.compound_tags]
@@ -197,6 +193,11 @@ class DependencyParserDE(DependencyParser):
             for index, token in enumerate(nominatives):
                 if token.dep_ == 'ROOT':
                     found_subjects.append(SentenceComp(token.text + ' ' + nominatives[index+1].text, nominatives[index+1]))
+                    nominatives.remove(token)
+                    del nominatives[index+1]
+
+            for nom in nominatives:
+                found_subjects.append(SentenceComp(nom.text, nom))
         elif len(nominatives) == 1:
             found_subjects.append(SentenceComp(nominatives[0].text, nominatives[0]))
         else:
@@ -208,7 +209,7 @@ class DependencyParserDE(DependencyParser):
         found_verbs=[]
         for verb in verbs:
             head = verb.head
-            if head.dep_ == 'AUX':
+            if head.pos_ == 'AUX':
                 text = head.text + ' ' + verb.text
             else:
                 text = verb.text
@@ -218,6 +219,49 @@ class DependencyParserDE(DependencyParser):
             found_verbs.append(SentenceComp(text, verb))
         return found_verbs
 
+    def get_sent_objects(self, sent):
+        def get_conjuncts(object_list):
+            for acc in object_list:
+                accusative_conj = [token for token in sent if token.dep_ == 'cj' and
+                                   token.right_edge == acc.right_edge and
+                                   (
+                                               token.ent_type_ in self.ner_parser.personLabels or token.ent_type_ in self.ner_parser.locationLabels) and
+                                   token not in object_list]
+                object_list.extend(accusative_conj)
+
+        found_objects = []
+        accusatives = [token for token in sent if
+                       'Case' in token.morph.to_dict().keys() and token.morph.to_dict()['Case'] == 'Acc' and
+                       (token.ent_type_ in self.ner_parser.personLabels or token.ent_type_ in self.ner_parser.locationLabels)]
+        get_conjuncts(accusatives)
+
+        compound_accusatives = [token for token in accusatives if token.left_edge.dep_ in self.compound_tags]
+        for acc in compound_accusatives:
+            left_edge = acc.left_edge
+            found_objects.append(SentenceComp(left_edge.text + ' ' + acc.text, acc))
+            accusatives.remove(acc)
+            if left_edge in accusatives:
+                accusatives.remove(left_edge)
+        for obj in accusatives:
+            found_objects.append(SentenceComp(obj.text, obj))
+
+        if len(found_objects) == 0:  # not found accusatives check Datives
+            adp_props = [token for token in sent if token.head.pos_ == 'VERB' and token.pos_ == 'ADP']
+            for adp_prop in adp_props:
+                dative_objs = [token for token in sent if token.head == adp_prop and
+                             (token.ent_type_ in self.ner_parser.personLabels or token.ent_type_ in self.ner_parser.locationLabels)]
+                get_conjuncts(dative_objs)
+                compound_datives = [token for token in dative_objs if token.left_edge.dep_ in self.compound_tags]
+                for obj in compound_datives:
+                    left_edge = obj.left_edge
+                    found_objects.append(SentenceComp(left_edge.text + ' ' + obj.text, obj))
+                    dative_objs.remove(obj)
+                    if left_edge in dative_objs:
+                        dative_objs.remove(left_edge)
+                for prop_obj in dative_objs:
+                    found_objects.append(SentenceComp(prop_obj.text, prop_obj))
+
+        return found_objects
 
     def parse_sentence(self, sent):
         """
@@ -226,59 +270,19 @@ class DependencyParserDE(DependencyParser):
         :return: sentence components
         """
 
-        subjects, objects = self.get_subjs_and_objs(sent)
         found_sent_objects = []
+
+        subjects = self.get_sent_subjects(sent)  # get nominatives from the sentence
+        verbs = self.get_sent_verb(sent)
+        objects = self.get_sent_objects(sent)
         if len(subjects) == 0 or len(objects) == 0:
             return found_sent_objects
-
-        subjects = self.get_compound_subjects(sent)  # get nominatives from the sentence
-        verbs = self.get_sent_verb(sent)
-        verb_conj = []
-        direct_objs = [obj for obj in objects if obj.dep_ == 'oa']  # direct objects
-
-
-
-
-
-        for obj in direct_objs:
-            verb = obj.head
-            verb_conj += verb.conjuncts
-            subj_of_verb = [subj for subj in subjects if subj.head == verb]
-            if len(subj_of_verb) > 0:
-                sent_obj = Sentence()
-                sent_obj.obj = SentenceComp(obj.text, obj)
-                sent_obj.verb = SentenceComp(verb.text, verb)
-                sent_obj.subj = SentenceComp(subj_of_verb[0].text, subj_of_verb[0])
-                found_sent_objects.append(sent_obj)
-
-        prep_objs = [obj for obj in objects if obj.dep_ == 'op']  # preposition objects
-
-        for obj in prep_objs:
-            prep = obj.head
-            verb_comp = [prep]
-            token = prep
-
-            while token.dep_ != 'ROOT':
-                if token.head not in token.conjuncts:
-                    if token.head.pos_ == 'VERB':
-                        verb_comp.append(token.head)
-                else:
-                    verb_conj += token.conjuncts
-                    break
-                token = token.head
-            else:
-                if token.pos_ == 'AUX':
-                    verb_comp.append(token)
-            prep_verb = next(v for v in verb_comp if v.pos_ == 'VERB' or v.pos_ == 'AUX')
-            prep_verb_text = " ".join([v.text for v in verb_comp[::-1]])
-            subj_of_verb = [subj for subj in subjects if subj.head == verb_comp[-1] or subj.head in prep_verb.conjuncts]
-
-            if len(subj_of_verb) > 0:
-                sent_obj = Sentence()
-                sent_obj.obj = SentenceComp(obj.text, obj)
-                sent_obj.verb = SentenceComp(prep_verb_text, prep_verb)
-                sent_obj.subj = SentenceComp(subj_of_verb[0].text, subj_of_verb)
-                found_sent_objects.append(sent_obj)
+        # All permutations of sentence components
+        for subj in subjects:
+            for verb in verbs:
+                for obj in objects:
+                    sentence = Sentence(subj=subj, verb=verb, obj=obj)
+                    found_sent_objects.append(sentence)
 
         return found_sent_objects
 
