@@ -85,6 +85,7 @@ def retrieve_wiki_info_location(name: str, lang: str, onto_graph: rdflib.Graph, 
         record = results[0]
         if len(results) > 1:
             msg = "Multiple records found for location " + name + " in language " + lang + ". Top one is chosen."
+            # TODO: show options to user, ask for choice!
             print(msg)
         for key in record.keys():
             if key == 'place':
@@ -122,6 +123,7 @@ def retrieve_wiki_info_person(name: str, lang: str, onto_graph: rdflib.Graph, sh
         record = results[0]
         if len(results) > 1:
             msg = "Multiple records found for person " + name + " in language " + lang + ". Top one is chosen."
+            # TODO: show options to user, ask for choice!
             print(msg)
         for key in record.keys():
             if key == 'person':
@@ -167,6 +169,7 @@ def add_wiki_info_location(found_locations, inputs: Input):
     :param document: input document
     :return: updated locations
     """
+    # TODO: check if the found location is amongst the existing_entities of the project or not, if yes, copy the values, otherwise retrieve from wiki.
     counter = 0
     wiki_props = {}
     for loc in found_locations:

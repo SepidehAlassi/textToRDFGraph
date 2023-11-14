@@ -177,6 +177,7 @@ class MyTestCase(unittest.TestCase):
         parser = DependencyParserDE(text, 'de')
         found_comp = parser.parse_sentence(sent)
         self.assertEqual(3, len(found_comp))
+
     def test_de_subj_and_obj_conj_enumeration(self):
         text = 'Sepideh, Sara und Christian verzichten auf Basel, Bern und Genf.'
         sent = SpacyParser().spacy_parse(text=text, lang='de')

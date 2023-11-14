@@ -53,8 +53,10 @@ def detect_lang(text):
     lang = detect(text)
     supported_langs = ['en', 'de', 'fa']
     if lang not in supported_langs:
-        raise ValueError('The Pipeline only supports ' +
-                         ','.join(supported_langs) + ', not ' + lang)
+
+        print('The Pipeline only supports ' +
+                         ','.join(supported_langs) + 'the following text has language that is not supported, German language model is considered instead!\n', text)
+        lang = 'de'
     return lang
 
 
@@ -70,7 +72,7 @@ def read_text(text_path):
     return text, document_name
 
 
-def preprocess_input(text_path, onto_path='', shacl_path='', project_name='test_output'):
+def preprocess_input(text_path, onto_path='', shacl_path='', project_name='test_project'):
     """
     Preprocess the inputs of the pipeline into an object
     :param text_path: path to the input text

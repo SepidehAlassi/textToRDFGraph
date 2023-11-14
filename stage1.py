@@ -35,10 +35,10 @@ def stage1(parser, existing_entities, inputs):
 
 if __name__ == '__main__':
     working_dir = os.getcwd()
-    text_path = os.path.join(working_dir, 'inputs', 'test_data', 'jacob_bernoulli', 'texts', 'jb_basel_genf_en.txt')
+    text_path = os.path.join(working_dir, 'inputs', 'test_data', 'reisebuechlein', 'BAU_9972437336105504_0013_text_2.txt')
     # onto_path = os.path.join(working_dir, 'inputs', 'example_onto.ttl')
     # shacl_path = os.path.join(working_dir, 'inputs', 'example_shacl.ttl')
-    project_name = 'jacob_bernoulli'
+    project_name = 'reisebuechlein'
     inputs = preprocess_input(text_path=text_path,
                               project_name=project_name)
 
