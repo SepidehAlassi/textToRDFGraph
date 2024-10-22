@@ -212,7 +212,7 @@ if __name__ == '__main__':
     entities_json = os.path.join(os.getcwd(), 'magellan', 'magellan_entities.json')
     test_input = Input(
         text=os.path.join(os.getcwd(), 'inputs', 'test_data', 'magellan_voyage', 'en_magellan_voyage.txt'),
-        onto_path=os.path.join(os.getcwd(), 'inputs', 'example_onto.ttl'),
-        shacl_path=os.path.join(os.getcwd(), 'inputs', 'example_shacl.ttl'),
+        onto_path=os.path.join(os.getcwd(), 'inputs', 'beol_onto.ttl'),
+        shacl_path=os.path.join(os.getcwd(), 'inputs', 'beol_shacl.ttl'),
         project_name='magellan')
     create_resources(entities_json, test_input)

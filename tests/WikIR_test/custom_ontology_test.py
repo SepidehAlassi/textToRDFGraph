@@ -5,8 +5,8 @@ import rdflib.term
 
 from pipes.PreProcessor import parse_ontology, parse_shacl
 
-test_onto_path = os.path.join(os.path.dirname(__file__), '..', '..', 'inputs', 'example_onto.ttl')
-test_shacl_path = os.path.join(os.path.dirname(__file__), '..', '..', 'inputs', 'example_shacl.ttl')
+test_onto_path = os.path.join(os.path.dirname(__file__), '..', '..', 'inputs', 'beol_onto.ttl')
+test_shacl_path = os.path.join(os.path.dirname(__file__), '..', '..', 'inputs', 'beol_shacl.ttl')
 onto_graph = parse_ontology(test_onto_path)
 shapes_graph = parse_shacl(test_shacl_path)
 namespaces = dict(onto_graph.namespaces())

@@ -26,8 +26,8 @@ if __name__ == '__main__':
     working_dir = os.getcwd()
     entities_json = os.path.join(working_dir, 'dh2023', 'dh2023_entities.json')
     text_path = os.path.join(working_dir, 'inputs', 'test_data', 'dh2023', 'texts', 'en_swiss.txt')
-    onto_path = os.path.join(working_dir, 'inputs', 'test_data', 'dh2023', 'example_onto.ttl')
-    shacl_path = os.path.join(working_dir, 'inputs','test_data', 'dh2023', 'example_shacl.ttl')
+    onto_path = os.path.join(working_dir, 'inputs', 'test_data', 'dh2023', 'beol_onto.ttl')
+    shacl_path = os.path.join(working_dir, 'inputs','test_data', 'dh2023', 'beol_shacl.ttl')
     project_name = 'dh2023'
     inputs = preprocess_input(text_path=text_path,
                               onto_path=onto_path,

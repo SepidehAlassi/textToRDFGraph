@@ -38,7 +38,8 @@ nlpg:WikiIRIShape
 	a sh:PropertyShape ;
 	sh:path owl:sameAs;
     sh:minCount 1 ;
-    sh:datatype xsd:anyURI .
+    sh:datatype xsd:anyURI ;
+    sh:targetClass nlpg:NamedEntity .
 
 nlpg:NameShape
 	a sh:PropertyShape ;

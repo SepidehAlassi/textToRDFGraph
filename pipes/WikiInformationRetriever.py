@@ -169,7 +169,6 @@ def add_wiki_info_location(found_locations, inputs: Input):
     :param document: input document
     :return: updated locations
     """
-    # TODO: check if the found location is amongst the existing_entities of the project or not, if yes, copy the values, otherwise retrieve from wiki.
     counter = 0
     wiki_props = {}
     for loc in found_locations:

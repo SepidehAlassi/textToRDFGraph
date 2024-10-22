@@ -55,7 +55,7 @@ def make_wiki_query_sparql(name: str, lang: str, wiki_props={}, entity_type="per
         variables += key_var
     select_block = "SELECT DISTINCT" + variables + '\n'
     if entity_type == 'person':
-        where_block = "WHERE {\n\t?person wdt:P31 wd:Q5 . \n"
+            where_block = "WHERE {\n\t?person wdt:P31 wd:Q5 . \n"
     else:
         where_block = "WHERE {\n\t"
     where_block += "\t{" + main_var + " rdfs:label '" + name + "'@" + lang + " . }\n\tUNION \n\t{" + main_var + " rdfs:label '" + name.title() + "'@" + lang + " . }\n"

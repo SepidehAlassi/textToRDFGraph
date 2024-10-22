@@ -32,13 +32,16 @@ def parse_shacl(file):
 
 
 class Input:
-    def __init__(self, text, onto_path='', shacl_path='', project_name='test_output'):
+    def __init__(self, text, onto_path='', shacl_path='', project_name='test_output', lang=None):
         if os.path.isfile(text):
             self.text, self.doc_name = read_text(text)
         else:
             self.text = text
             self.doc_name = 'test_output'
-        self.lang = detect_lang(self.text)
+        if lang is None:
+            self.lang = detect_lang(self.text)
+        else:
+            self.lang = lang
         self.onto_graph = parse_ontology(onto_path)
         self.shacl_graph = parse_shacl(shacl_path)
         self.project_name = project_name
